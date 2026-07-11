@@ -9,6 +9,7 @@
   import Projects from '../apps/Projects.svelte';
   import Settings from '../apps/Settings.svelte';
   import SystemMonitor from '../apps/SystemMonitor.svelte';
+  import Browser from '../apps/Browser.svelte';
 
   let t = $derived(themes[$currentTheme]);
   let currentWallpaper = $state('gradient');
@@ -42,7 +43,8 @@
     { id: 'about', title: 'About Me', icon: '\uD83D\uDC64', component: AboutMe, color: () => t.aqua },
     { id: 'projects', title: 'Projects', icon: '\u2B22', component: Projects, color: () => t.purple },
     { id: 'settings', title: 'Settings', icon: '\u2699', component: Settings, color: () => t.orange },
-    { id: 'sysmon', title: 'System Monitor', icon: '\u25A3', component: SystemMonitor, color: () => t.green }
+    { id: 'sysmon', title: 'System Monitor', icon: '\u25A3', component: SystemMonitor, color: () => t.green },
+    { id: 'browser', title: 'Browser', icon: '\u25C9', component: Browser, color: () => t.blue }
   ];
 
   const GRID = 96;
@@ -143,7 +145,8 @@
       about: { width: 520, height: 580 },
       projects: { width: 820, height: 580 },
       settings: { width: 560, height: 500 },
-      sysmon: { width: 600, height: 480 }
+      sysmon: { width: 600, height: 480 },
+      browser: { width: 960, height: 640 }
     };
     openWindow(app.id, app.title, app.component, { ...sizes[app.id], icon: app.icon, iconColor: app.color() });
   }

@@ -4,7 +4,7 @@
   import { themes } from '../themes/palettes.js';
   import { onMount } from 'svelte';
 
-  let { id, title, component, x, y, width, height, minWidth = 300, minHeight = 200 } = $props();
+  let { id, title, component, x, y, width, height, minWidth = 300, minHeight = 200, glass = true } = $props();
 
   let isActive = $derived($activeWindowId === id);
   let isMinimized = $derived($minimizedIds.has(id));
@@ -149,8 +149,8 @@
   class:wobbling={dragging}
   class:fullscreen={isFullscreen}
   style={isFullscreen
-    ? `left: 0; top: 0; width: 100%; height: calc(100vh - 44px); z-index: ${isActive ? 1000 : 100}; --bg: ${t.bg}; --bg-light: ${t.bgLight}; --fg: ${t.fg}; --fg-dim: ${t.fgDim}; --border: ${t.border}; --title-bg: ${t.titleBg}; --title-fg: ${titleFg}; --active-title-bg: ${t.activeTitleBg}; --active-title-fg: ${t.activeTitleFg}; --shadow: ${t.shadow}; --panel-bg: ${t.panelBg}; --accent: ${t.accent};`
-    : `left: ${x}px; top: ${y}px; width: ${width}px; height: ${height}px; z-index: ${isActive ? 1000 : 100}; --bg: ${t.bg}; --bg-light: ${t.bgLight}; --fg: ${t.fg}; --fg-dim: ${t.fgDim}; --border: ${t.border}; --title-bg: ${t.titleBg}; --title-fg: ${titleFg}; --active-title-bg: ${t.activeTitleBg}; --active-title-fg: ${t.activeTitleFg}; --shadow: ${t.shadow}; --panel-bg: ${t.panelBg}; --accent: ${t.accent};`
+    ? `left: 0; top: 0; width: 100%; height: calc(100vh - 44px); z-index: ${isActive ? 1000 : 100}; --bg: ${t.bg}; --bg-light: ${t.bgLight}; --fg: ${t.fg}; --fg-dim: ${t.fgDim}; --border: ${t.border}; --title-bg: ${t.titleBg}; --title-fg: ${titleFg}; --active-title-bg: ${t.activeTitleBg}; --active-title-fg: ${t.activeTitleFg}; --shadow: ${t.shadow}; --panel-bg: ${t.panelBg}; --accent: ${t.accent}; --glass-bg: ${t.glassBg || 'rgba(30,30,30,0.75)'}; --glass-blur: ${t.glassBlur || 20};`
+    : `left: ${x}px; top: ${y}px; width: ${width}px; height: ${height}px; z-index: ${isActive ? 1000 : 100}; --bg: ${t.bg}; --bg-light: ${t.bgLight}; --fg: ${t.fg}; --fg-dim: ${t.fgDim}; --border: ${t.border}; --title-bg: ${t.titleBg}; --title-fg: ${titleFg}; --active-title-bg: ${t.activeTitleBg}; --active-title-fg: ${t.activeTitleFg}; --shadow: ${t.shadow}; --panel-bg: ${t.panelBg}; --accent: ${t.accent}; --glass-bg: ${t.glassBg || 'rgba(30,30,30,0.75)'}; --glass-blur: ${t.glassBlur || 20};`
   }
   onmousedown={() => focusWindow(id)}
   oncontextmenu={preventContextMenu}
@@ -213,10 +213,12 @@
     position: absolute;
     display: flex;
     flex-direction: column;
-    border-radius: 8px;
+    border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 8px 32px var(--shadow);
     border: 1px solid var(--border);
+    backdrop-filter: blur(var(--glass-blur)) saturate(1.4);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.4);
     transition: box-shadow 0.2s ease, opacity 0.2s ease, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), border-radius 0.2s ease;
     opacity: 0;
     transform: scale(0.92) translateY(10px);
@@ -256,7 +258,7 @@
     justify-content: space-between;
     padding: 0 8px 0 12px;
     height: 32px;
-    background: var(--title-bg);
+    background: var(--glass-bg);
     color: var(--title-fg);
     cursor: grab;
     user-select: none;
@@ -264,7 +266,7 @@
     transition: background 0.2s;
   }
   .active .title-bar {
-    background: var(--active-title-bg);
+    background: var(--glass-bg);
     color: var(--active-title-fg);
   }
 
@@ -310,7 +312,7 @@
   .win-content {
     flex: 1;
     overflow: auto;
-    background: var(--bg);
+    background: var(--glass-bg);
     color: var(--fg);
   }
 

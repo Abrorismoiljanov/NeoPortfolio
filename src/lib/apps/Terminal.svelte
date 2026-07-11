@@ -714,6 +714,111 @@
   function focusInput() {
     inputEl?.focus();
   }
+
+  const CMD_NAMES = Object.keys(commands);
+  const OPERATORS = /\||&&|\|\||;|>>|>|<|&/;
+  const BUILTINS = ['cd', 'export', 'alias', 'unalias', 'source', 'exit', 'type'];
+
+  function highlightInput(text) {
+    if (!text) return [];
+    const segments = [];
+    let i = 0;
+
+    function peek() { return text[i]; }
+    function advance() { return text[i++]; }
+
+    while (i < text.length) {
+      const ch = peek();
+
+      if (ch === '"' || ch === "'") {
+        const quote = advance();
+        let str = quote;
+        while (i < text.length && peek() !== quote) str += advance();
+        if (i < text.length) str += advance();
+        segments.push({ text: str, color: 'var(--orange)' });
+      } else if (ch === '$') {
+        let varName = advance();
+        if (peek() === '{') { varName += advance(); while (i < text.length && peek() !== '}') varName += advance(); if (i < text.length) varName += advance(); }
+        else { while (i < text.length && /[a-zA-Z0-9_]/.test(peek())) varName += advance(); }
+        segments.push({ text: varName, color: 'var(--purple)' });
+      } else if (ch === ' ' || ch === '\t') {
+        let ws = '';
+        while (i < text.length && (peek() === ' ' || peek() === '\t')) ws += advance();
+        segments.push({ text: ws, color: null });
+      } else if (/\d/.test(ch)) {
+        let num = '';
+        while (i < text.length && /[\d.]/.test(peek())) num += advance();
+        segments.push({ text: num, color: 'var(--purple)' });
+      } else if (ch === '-' && i + 1 < text.length && text[i + 1] === '-') {
+        let flag = advance() + advance();
+        while (i < text.length && /[a-zA-Z0-9_-]/.test(peek())) flag += advance();
+        segments.push({ text: flag, color: 'var(--aqua)' });
+      } else if (ch === '-' && i + 1 < text.length && /[a-zA-Z]/.test(text[i + 1])) {
+        let flag = advance();
+        while (i < text.length && /[a-zA-Z0-9]/.test(peek())) flag += advance();
+        segments.push({ text: flag, color: 'var(--aqua)' });
+      } else if ('|&;><'.includes(ch)) {
+        let op = advance();
+        if (i < text.length && (op + peek() === '||' || op + peek() === '&&' || op + peek() === '>>')) op += advance();
+        segments.push({ text: op, color: 'var(--dim)' });
+      } else if (ch === '~' || ch === '/' || (ch === '.' && (i + 1 >= text.length || '/.'.includes(text[i + 1])))) {
+        let path = '';
+        while (i < text.length && !' \t|&;><"\''.includes(peek())) path += advance();
+        segments.push({ text: path, color: 'var(--blue)' });
+      } else {
+        let word = '';
+        while (i < text.length && !' \t|&;><"\'$'.includes(peek())) word += advance();
+
+        const cmdIdx = text.substring(0, text.indexOf(word)).trim().split(/\s+/).length;
+        if (cmdIdx === 1 || (cmdIdx === 2 && BUILTINS.includes(word))) {
+          const isKnown = CMD_NAMES.includes(word) || BUILTINS.includes(word);
+          const isAlias = ALIASES[word];
+          let color = 'var(--fg)';
+          if (word === 'sudo') color = 'var(--red)';
+          else if (word === 'rm' || word === 'chmod') color = 'var(--red)';
+          else if (isKnown || isAlias) color = 'var(--accent)';
+          else color = 'var(--red)';
+          segments.push({ text: word, color });
+        } else {
+          segments.push({ text: word, color: null });
+        }
+      }
+    }
+
+    return segments;
+  }
+
+  function highlightCommand(text) {
+    if (!text) return [];
+    const parts = text.split(/(\s+)/);
+    const result = [];
+    let cmdFound = false;
+
+    for (const part of parts) {
+      if (/^\s+$/.test(part)) {
+        result.push({ text: part, color: null });
+        continue;
+      }
+      if (!cmdFound) {
+        cmdFound = true;
+        const isKnown = CMD_NAMES.includes(part) || BUILTINS.includes(part);
+        const isAlias = ALIASES[part];
+        let color = 'var(--fg)';
+        if (part === 'sudo') color = 'var(--red)';
+        else if (part === 'rm' || part === 'chmod') color = 'var(--red)';
+        else if (isKnown || isAlias) color = 'var(--accent)';
+        else color = 'var(--red)';
+        result.push({ text: part, color });
+      } else if (part.startsWith('-')) {
+        result.push({ text: part, color: 'var(--aqua)' });
+      } else {
+        result.push({ text: part, color: null });
+      }
+    }
+    return result;
+  }
+
+  let liveHighlight = $derived(highlightInput(input));
 </script>
 
 <div
@@ -732,7 +837,16 @@
         </div>
       {:else if line.type === 'input'}
         <div class="term-line">
-          <span class="prompt">{line.prompt}</span><span class="input-text">{line.text}</span>
+          <span class="prompt">{line.prompt}</span>
+          <span class="input-text">
+            {#each highlightCommand(line.text) as seg}
+              {#if seg.color}
+                <span style="color: {seg.color};">{seg.text}</span>
+              {:else}
+                <span>{seg.text}</span>
+              {/if}
+            {/each}
+          </span>
         </div>
       {:else if line.type === 'styled'}
         <div class="term-line">
@@ -758,16 +872,28 @@
     {/each}
     <div class="term-input-line">
       <span class="prompt">{getPrompt().user}@{getPrompt().host}:{getPrompt().dir}$ </span>
-      <!-- svelte-ignore a11y_autofocus -->
-      <input
-        bind:this={inputEl}
-        bind:value={input}
-        onkeydown={onKeydown}
-        class="term-input"
-        spellcheck="false"
-        autocomplete="off"
-        autofocus
-      />
+      <div class="input-wrapper">
+        <span class="input-overlay" aria-hidden="true">
+          {#each liveHighlight as seg}
+            {#if seg.color}
+              <span style="color: {seg.color};">{seg.text}</span>
+            {:else}
+              <span>{seg.text}</span>
+            {/if}
+          {/each}
+          <span class="cursor-char">{input.length === 0 ? '\u00A0' : ''}</span>
+        </span>
+        <!-- svelte-ignore a11y_autofocus -->
+        <input
+          bind:this={inputEl}
+          bind:value={input}
+          onkeydown={onKeydown}
+          class="term-input"
+          spellcheck="false"
+          autocomplete="off"
+          autofocus
+        />
+      </div>
     </div>
   </div>
 </div>
@@ -775,7 +901,7 @@
 <style>
   .terminal {
     height: 100%;
-    background: var(--bg);
+    background: transparent;
     color: var(--fg);
     font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
     font-size: 13px;
@@ -820,17 +946,36 @@
   .term-input-line {
     display: flex;
     line-height: 1.6;
+    position: relative;
+  }
+
+  .input-wrapper {
+    flex: 1;
+    position: relative;
+  }
+
+  .input-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    white-space: pre;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: 1.6;
   }
 
   .term-input {
-    flex: 1;
+    width: 100%;
     background: transparent;
     border: none;
-    color: var(--fg);
+    color: transparent;
     font-family: inherit;
     font-size: inherit;
     outline: none;
     caret-color: var(--accent);
+    position: relative;
+    z-index: 1;
   }
 
   .term-output::-webkit-scrollbar {

@@ -189,7 +189,7 @@
     height: 100%;
     display: flex;
     flex-direction: column;
-    background: var(--bg);
+    background: transparent;
     color: var(--fg);
     font-family: 'Inter', system-ui, sans-serif;
     font-size: 13px;
@@ -198,7 +198,7 @@
   .tabs {
     display: flex;
     border-bottom: 1px solid var(--border);
-    background: var(--bg-light);
+    background: rgba(255,255,255,0.04);
   }
 
   .tab {
@@ -228,7 +228,7 @@
   }
 
   .metric-card {
-    background: var(--bg-light);
+    background: rgba(255,255,255,0.04);
     border: 1px solid var(--border);
     border-radius: 8px;
     padding: 12px;
@@ -307,11 +307,11 @@
     letter-spacing: 0.05em;
     position: sticky;
     top: 0;
-    background: var(--bg-light);
+    background: rgba(255,255,255,0.04);
   }
 
   .process-row:hover {
-    background: var(--bg-light);
+    background: rgba(255,255,255,0.04);
   }
 
   .col-pid { width: 50px; }

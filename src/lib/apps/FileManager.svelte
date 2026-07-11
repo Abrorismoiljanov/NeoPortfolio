@@ -139,7 +139,7 @@
     display: flex;
     flex-direction: column;
     height: 100%;
-    background: var(--bg);
+    background: transparent;
     color: var(--fg);
     font-family: 'Inter', system-ui, sans-serif;
     font-size: 13px;
@@ -151,7 +151,7 @@
     gap: 8px;
     padding: 8px 12px;
     border-bottom: 1px solid var(--border);
-    background: var(--bg-light);
+    background: rgba(255,255,255,0.04);
   }
 
   .nav-btn {
@@ -226,7 +226,7 @@
     justify-content: space-between;
     padding: 6px 12px;
     border-top: 1px solid var(--border);
-    background: var(--bg-light);
+    background: rgba(255,255,255,0.04);
     font-size: 11px;
   }
 </style>

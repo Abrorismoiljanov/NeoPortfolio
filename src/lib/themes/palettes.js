@@ -28,7 +28,9 @@ export const themes = {
     inputFg: '#ebdbb2',
     hoverBg: '#504945',
     scrollbar: '#504945',
-    wallpaper: 'linear-gradient(135deg, #1d2021 0%, #282828 40%, #3c3836 100%)'
+    wallpaper: 'linear-gradient(135deg, #1d2021 0%, #282828 40%, #3c3836 100%)',
+    glassBg: 'rgba(29,32,33,0.78)',
+    glassBlur: 20
   },
   catppuccin: {
     name: 'Catppuccin Mocha',
@@ -59,7 +61,9 @@ export const themes = {
     inputFg: '#cdd6f4',
     hoverBg: '#45475a',
     scrollbar: '#45475a',
-    wallpaper: 'linear-gradient(135deg, #11111b 0%, #1e1e2e 40%, #313244 100%)'
+    wallpaper: 'linear-gradient(135deg, #11111b 0%, #1e1e2e 40%, #313244 100%)',
+    glassBg: 'rgba(17,17,27,0.78)',
+    glassBlur: 20
   },
   dracula: {
     name: 'Dracula',
@@ -90,7 +94,9 @@ export const themes = {
     inputFg: '#f8f8f2',
     hoverBg: '#6272a4',
     scrollbar: '#6272a4',
-    wallpaper: 'linear-gradient(135deg, #191a21 0%, #282a36 40%, #44475a 100%)'
+    wallpaper: 'linear-gradient(135deg, #191a21 0%, #282a36 40%, #44475a 100%)',
+    glassBg: 'rgba(25,26,33,0.78)',
+    glassBlur: 20
   },
   nord: {
     name: 'Nord',
@@ -121,7 +127,9 @@ export const themes = {
     inputFg: '#eceff4',
     hoverBg: '#434c5e',
     scrollbar: '#434c5e',
-    wallpaper: 'linear-gradient(135deg, #242933 0%, #2e3440 40%, #3b4252 100%)'
+    wallpaper: 'linear-gradient(135deg, #242933 0%, #2e3440 40%, #3b4252 100%)',
+    glassBg: 'rgba(36,41,51,0.78)',
+    glassBlur: 20
   },
   tokyonight: {
     name: 'Tokyo Night',
@@ -152,7 +160,9 @@ export const themes = {
     inputFg: '#c0caf5',
     hoverBg: '#414868',
     scrollbar: '#414868',
-    wallpaper: 'linear-gradient(135deg, #16161e 0%, #1a1b26 40%, #24283b 100%)'
+    wallpaper: 'linear-gradient(135deg, #16161e 0%, #1a1b26 40%, #24283b 100%)',
+    glassBg: 'rgba(22,22,30,0.78)',
+    glassBlur: 20
   },
   solarized: {
     name: 'Solarized Dark',
@@ -183,6 +193,8 @@ export const themes = {
     inputFg: '#839496',
     hoverBg: '#586e75',
     scrollbar: '#586e75',
-    wallpaper: 'linear-gradient(135deg, #001e27 0%, #002b36 40%, #073642 100%)'
+    wallpaper: 'linear-gradient(135deg, #001e27 0%, #002b36 40%, #073642 100%)',
+    glassBg: 'rgba(0,30,39,0.78)',
+    glassBlur: 20
   }
 };
