@@ -5,10 +5,10 @@
   let t = $derived(themes[$currentTheme]);
 
   let tabs = $state([
-    { id: 1, title: 'New Tab', url: 'https://duckduckgo.com', loading: false, error: false }
+    { id: 1, title: 'New Tab', url: 'https://lite.duckduckgo.com/lite/', loading: false, error: false }
   ]);
   let activeTabId = $state(1);
-  let urlInput = $state('https://duckduckgo.com');
+  let urlInput = $state('https://lite.duckduckgo.com/lite/');
   let nextTabId = $state(2);
 
   let activeTab = $derived(tabs.find(t => t.id === activeTabId));
@@ -20,9 +20,9 @@
 
   function addTab() {
     const id = nextTabId++;
-    tabs = [...tabs, { id, title: 'New Tab', url: 'https://duckduckgo.com', loading: false, error: false }];
+    tabs = [...tabs, { id, title: 'New Tab', url: 'https://lite.duckduckgo.com/lite/', loading: false, error: false }];
     activeTabId = id;
-    urlInput = 'https://duckduckgo.com';
+    urlInput = 'https://lite.duckduckgo.com/lite/';
   }
 
   function closeTab(id, e) {
@@ -43,7 +43,7 @@
       if (url.includes('.') && !url.includes(' ')) {
         finalUrl = 'https://' + url;
       } else {
-        finalUrl = `https://duckduckgo.com/?q=${encodeURIComponent(url)}`;
+        finalUrl = `https://lite.duckduckgo.com/lite/?q=${encodeURIComponent(url)}`;
       }
     }
     tabs = tabs.map(tab => tab.id === activeTabId ? { ...tab, url: finalUrl, loading: true, error: false } : tab);
@@ -88,7 +88,7 @@
   }
 
   function onHome() {
-    navigate('https://duckduckgo.com');
+    navigate('https://lite.duckduckgo.com/lite/');
   }
 </script>
 
@@ -146,7 +146,7 @@
           class="url-input"
           bind:value={urlInput}
           onkeydown={onUrlKeydown}
-          placeholder="Search or enter URL..."
+          placeholder="Search DuckDuckGo or enter URL..."
           style="color: {t.fg};"
           spellcheck="false"
         />
@@ -177,7 +177,8 @@
             data-tab-id={tab.id}
             src={tab.url}
             title={tab.title}
-            sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-modals"
+            sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-modals allow-downloads"
+            allow="accelerometer; clipboard-write; encrypted-media; gyroscope"
             onload={(e) => onFrameLoad(e, tab.id)}
             onerror={() => onFrameError(tab.id)}
           ></iframe>

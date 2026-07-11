@@ -149,8 +149,8 @@
   class:wobbling={dragging}
   class:fullscreen={isFullscreen}
   style={isFullscreen
-    ? `left: 0; top: 0; width: 100%; height: calc(100vh - 44px); z-index: ${isActive ? 1000 : 100}; --bg: ${t.bg}; --bg-light: ${t.bgLight}; --fg: ${t.fg}; --fg-dim: ${t.fgDim}; --border: ${t.border}; --title-bg: ${t.titleBg}; --title-fg: ${titleFg}; --active-title-bg: ${t.activeTitleBg}; --active-title-fg: ${t.activeTitleFg}; --shadow: ${t.shadow}; --panel-bg: ${t.panelBg}; --accent: ${t.accent}; --glass-bg: ${t.glassBg || 'rgba(30,30,30,0.75)'}; --glass-blur: ${t.glassBlur || 20};`
-    : `left: ${x}px; top: ${y}px; width: ${width}px; height: ${height}px; z-index: ${isActive ? 1000 : 100}; --bg: ${t.bg}; --bg-light: ${t.bgLight}; --fg: ${t.fg}; --fg-dim: ${t.fgDim}; --border: ${t.border}; --title-bg: ${t.titleBg}; --title-fg: ${titleFg}; --active-title-bg: ${t.activeTitleBg}; --active-title-fg: ${t.activeTitleFg}; --shadow: ${t.shadow}; --panel-bg: ${t.panelBg}; --accent: ${t.accent}; --glass-bg: ${t.glassBg || 'rgba(30,30,30,0.75)'}; --glass-blur: ${t.glassBlur || 20};`
+    ? `left: 0; top: 0; width: 100%; height: calc(100vh - 44px); z-index: ${isActive ? 1000 : 100}; --bg: ${t.bg}; --bg-light: ${t.bgLight}; --fg: ${t.fg}; --fg-dim: ${t.fgDim}; --border: ${t.border}; --title-bg: ${t.titleBg}; --title-fg: ${titleFg}; --active-title-bg: ${t.activeTitleBg}; --active-title-fg: ${t.activeTitleFg}; --shadow: ${t.shadow}; --panel-bg: ${t.panelBg}; --accent: ${t.accent}; --glass-bg: ${t.glassBg}; --glass-blur: ${t.glassBlur}; --title-glass: ${t.titleGlassBg}; --title-glass-active: ${t.titleGlassActiveBg};`
+    : `left: ${x}px; top: ${y}px; width: ${width}px; height: ${height}px; z-index: ${isActive ? 1000 : 100}; --bg: ${t.bg}; --bg-light: ${t.bgLight}; --fg: ${t.fg}; --fg-dim: ${t.fgDim}; --border: ${t.border}; --title-bg: ${t.titleBg}; --title-fg: ${titleFg}; --active-title-bg: ${t.activeTitleBg}; --active-title-fg: ${t.activeTitleFg}; --shadow: ${t.shadow}; --panel-bg: ${t.panelBg}; --accent: ${t.accent}; --glass-bg: ${t.glassBg}; --glass-blur: ${t.glassBlur}; --title-glass: ${t.titleGlassBg}; --title-glass-active: ${t.titleGlassActiveBg};`
   }
   onmousedown={() => focusWindow(id)}
   oncontextmenu={preventContextMenu}
@@ -258,15 +258,16 @@
     justify-content: space-between;
     padding: 0 8px 0 12px;
     height: 32px;
-    background: var(--glass-bg);
+    background: var(--title-glass);
     color: var(--title-fg);
     cursor: grab;
     user-select: none;
     flex-shrink: 0;
     transition: background 0.2s;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
   }
   .active .title-bar {
-    background: var(--glass-bg);
+    background: var(--title-glass-active);
     color: var(--active-title-fg);
   }
 
