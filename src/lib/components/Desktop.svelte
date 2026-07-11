@@ -45,81 +45,90 @@
     { id: 'sysmon', title: 'System Monitor', icon: '\u25A3', component: SystemMonitor, color: () => t.green }
   ];
 
-  function loadIconOrder() {
+  const GRID = 96;
+
+  function snapToGrid(v) {
+    return Math.round(v / GRID) * GRID;
+  }
+
+  function defaultPositions() {
+    const positions = {};
+    const marginX = 24;
+    const marginY = 24;
+    allApps.forEach((app, i) => {
+      positions[app.id] = {
+        x: marginX,
+        y: marginY + i * 100
+      };
+    });
+    return positions;
+  }
+
+  function loadPositions() {
     try {
-      const saved = localStorage.getItem('os-icon-order');
+      const saved = localStorage.getItem('os-icon-positions');
       if (saved) {
-        const order = JSON.parse(saved);
-        const ordered = [];
-        for (const id of order) {
-          const app = allApps.find(a => a.id === id);
-          if (app) ordered.push(app);
-        }
+        const parsed = JSON.parse(saved);
+        const pos = {};
         for (const app of allApps) {
-          if (!ordered.find(a => a.id === app.id)) ordered.push(app);
+          pos[app.id] = parsed[app.id] || defaultPositions()[app.id];
         }
-        return ordered;
+        return pos;
       }
     } catch {}
-    return [...allApps];
+    return defaultPositions();
   }
 
-  let desktopApps = $state(loadIconOrder());
+  let iconPositions = $state(loadPositions());
 
-  function saveIconOrder() {
-    localStorage.setItem('os-icon-order', JSON.stringify(desktopApps.map(a => a.id)));
+  function savePositions() {
+    localStorage.setItem('os-icon-positions', JSON.stringify(iconPositions));
   }
 
-  let dragIdx = $state(null);
-  let dragOverIdx = $state(null);
+  let dragId = $state(null);
   let isDragging = $state(false);
-  let dragStartX = 0;
-  let dragStartY = 0;
+  let dragOffsetX = 0;
+  let dragOffsetY = 0;
+  let dragRawX = $state(0);
+  let dragRawY = $state(0);
 
-  function onIconMouseDown(e, idx) {
+  let dragSnapX = $derived(snapToGrid(Math.max(0, Math.min(dragRawX, window.innerWidth - GRID))));
+  let dragSnapY = $derived(snapToGrid(Math.max(0, Math.min(dragRawY, window.innerHeight - 120))));
+
+  function onIconMouseDown(e, app) {
     if (e.button !== 0) return;
-    dragStartX = e.clientX;
-    dragStartY = e.clientY;
-    dragIdx = idx;
+    e.stopPropagation();
+
+    const pos = iconPositions[app.id];
+    dragOffsetX = e.clientX - pos.x;
+    dragOffsetY = e.clientY - pos.y;
+    dragRawX = e.clientX - dragOffsetX;
+    dragRawY = e.clientY - dragOffsetY;
+    dragId = app.id;
 
     function onMove(ev) {
-      const dx = ev.clientX - dragStartX;
-      const dy = ev.clientY - dragStartY;
-      if (!isDragging && (Math.abs(dx) > 5 || Math.abs(dy) > 5)) {
-        isDragging = true;
+      if (!isDragging) {
+        const dx = ev.clientX - (pos.x + dragOffsetX);
+        const dy = ev.clientY - (pos.y + dragOffsetY);
+        if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
+          isDragging = true;
+        }
       }
       if (!isDragging) return;
-
-      const iconEls = document.querySelectorAll('.desktop-icon');
-      let closestIdx = null;
-      let closestDist = Infinity;
-      iconEls.forEach((el, i) => {
-        if (i === dragIdx) return;
-        const rect = el.getBoundingClientRect();
-        const cx = rect.left + rect.width / 2;
-        const cy = rect.top + rect.height / 2;
-        const dist = Math.hypot(ev.clientX - cx, ev.clientY - cy);
-        if (dist < closestDist) {
-          closestDist = dist;
-          closestIdx = i;
-        }
-      });
-      dragOverIdx = closestIdx;
+      dragRawX = ev.clientX - dragOffsetX;
+      dragRawY = ev.clientY - dragOffsetY;
     }
 
     function onUp() {
       window.removeEventListener('mousemove', onMove);
       window.removeEventListener('mouseup', onUp);
 
-      if (isDragging && dragIdx !== null && dragOverIdx !== null && dragIdx !== dragOverIdx) {
-        const apps = [...desktopApps];
-        const [moved] = apps.splice(dragIdx, 1);
-        apps.splice(dragOverIdx, 0, moved);
-        desktopApps = apps;
-        saveIconOrder();
+      if (isDragging && dragId) {
+        iconPositions[dragId] = { x: dragSnapX, y: dragSnapY };
+        iconPositions = { ...iconPositions };
+        savePositions();
       }
-      dragIdx = null;
-      dragOverIdx = null;
+      dragId = null;
       isDragging = false;
     }
 
@@ -170,12 +179,14 @@
   role="application"
 >
   <div class="desktop-icons">
-    {#each desktopApps as app, idx (app.id)}
+    {#each allApps as app (app.id)}
+      {@const pos = iconPositions[app.id] || { x: 24, y: 24 }}
+      {@const isBeingDragged = dragId === app.id && isDragging}
       <button
         class="desktop-icon"
-        class:dragging={dragIdx === idx && isDragging}
-        class:dragover={dragOverIdx === idx && isDragging}
-        onmousedown={(e) => onIconMouseDown(e, idx)}
+        class:dragging={isBeingDragged}
+        style="left: {pos.x}px; top: {pos.y}px; z-index: {isBeingDragged ? 0 : 1};"
+        onmousedown={(e) => onIconMouseDown(e, app)}
         ondblclick={() => { if (!isDragging) openApp(app); }}
         tabindex="-1"
       >
@@ -185,16 +196,26 @@
     {/each}
   </div>
 
+  {#if isDragging && dragId}
+    {@const ghostApp = allApps.find(a => a.id === dragId)}
+    {#if ghostApp}
+      <div class="drag-ghost" style="left: {dragSnapX}px; top: {dragSnapY}px;">
+        <div class="icon-glyph" style="color: {ghostApp.color()};">{ghostApp.icon}</div>
+        <span class="icon-label">{ghostApp.title}</span>
+      </div>
+    {/if}
+  {/if}
+
   {#if contextMenu}
     <div
       class="context-menu"
       style="left: {contextMenu.x}px; top: {contextMenu.y}px; background: {t.bgDark}; border-color: {t.border}; color: {t.fg};"
     >
-      <button class="ctx-item" onmousedown={() => { openApp(desktopApps[0]); closeContextMenu(); }}>Open Terminal</button>
-      <button class="ctx-item" onmousedown={() => { openApp(desktopApps[1]); closeContextMenu(); }}>Open Files</button>
-      <button class="ctx-item" onmousedown={() => { openApp(desktopApps[5]); closeContextMenu(); }}>System Monitor</button>
+      <button class="ctx-item" onmousedown={() => { openApp(allApps[0]); closeContextMenu(); }}>Open Terminal</button>
+      <button class="ctx-item" onmousedown={() => { openApp(allApps[1]); closeContextMenu(); }}>Open Files</button>
+      <button class="ctx-item" onmousedown={() => { openApp(allApps[5]); closeContextMenu(); }}>System Monitor</button>
       <div class="ctx-sep" style="border-color: {t.border};"></div>
-      <button class="ctx-item" onmousedown={() => { openApp(desktopApps[4]); closeContextMenu(); }}>Settings</button>
+      <button class="ctx-item" onmousedown={() => { openApp(allApps[4]); closeContextMenu(); }}>Settings</button>
     </div>
   {/if}
 </div>
@@ -209,17 +230,13 @@
   }
 
   .desktop-icons {
-    display: flex;
-    flex-direction: column;
-    flex-wrap: wrap;
-    gap: 8px;
-    padding: 16px;
-    height: 100%;
-    align-content: flex-start;
-    align-items: flex-start;
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
   }
 
   .desktop-icon {
+    position: absolute;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -229,23 +246,40 @@
     background: transparent;
     border-radius: 8px;
     cursor: grab;
-    transition: background 0.15s, transform 0.15s, opacity 0.15s;
+    transition: background 0.15s, opacity 0.15s;
     gap: 4px;
     user-select: none;
+    pointer-events: auto;
   }
   .desktop-icon:hover {
     background: rgba(255,255,255,0.08);
   }
   .desktop-icon:active {
-    transform: scale(0.95);
+    cursor: grabbing;
   }
   .desktop-icon.dragging {
-    opacity: 0.3;
-    transform: scale(0.9);
+    opacity: 0.25;
+    transition: none;
+    pointer-events: none;
   }
-  .desktop-icon.dragover {
-    background: rgba(255,255,255,0.15);
-    box-shadow: inset 0 0 0 2px rgba(255,255,255,0.3);
+
+  .drag-ghost {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 80px;
+    padding: 8px 4px;
+    border-radius: 8px;
+    gap: 4px;
+    pointer-events: none;
+    z-index: 999;
+    background: rgba(255,255,255,0.1);
+    border: 2px dashed rgba(255,255,255,0.4);
+    transition: left 0.08s ease-out, top 0.08s ease-out;
+  }
+  .drag-ghost .icon-glyph {
+    filter: drop-shadow(0 0 6px rgba(255,255,255,0.3));
   }
 
   .icon-glyph {
