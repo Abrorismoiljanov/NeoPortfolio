@@ -11,7 +11,7 @@
   let calendarOpen = $state(false);
   let calMonth = $state(now.getMonth());
   let calYear = $state(now.getFullYear());
-  let batteryLevel = $state(87);
+  let batteryLevel = $state(67);
   let wifiStrength = $state(3);
 
   const clockInterval = setInterval(() => { now = new Date(); }, 1000);
@@ -117,7 +117,7 @@
         title={win.title}
       >
         <span class="taskbar-indicator" class:visible={win.id === $activeWindowId && !$minimizedIds.has(win.id)} style="background: {t.accent};"></span>
-        <span class="taskbar-icon" style="color: {win.iconColor};">{win.icon}</span>
+        <span class="taskbar-icon" style="color: {win.iconColor};">{@html win.icon}</span>
       </button>
     {/each}
   </div>
@@ -304,6 +304,13 @@
     font-family: monospace;
     font-weight: bold;
     line-height: 1;
+    display: flex;
+    align-items: center;
+  }
+
+  .taskbar-icon :global(svg) {
+    width: 16px;
+    height: 16px;
   }
 
   .taskbar-indicator {

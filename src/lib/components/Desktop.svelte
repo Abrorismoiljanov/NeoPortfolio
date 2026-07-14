@@ -61,7 +61,7 @@
   });
 
   const allApps = [
-    { id: 'terminal', title: 'Terminal', icon: '>', component: Terminal, color: () => t.fgDim },
+    { id: 'terminal', title: 'Terminal', icon: `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="18" rx="3"/><polyline points="7 8 11 12 7 16"/><line x1="13" y1="16" x2="17" y2="16"/></svg>`, component: Terminal, color: () => t.green },
     { id: 'files', title: 'Files', icon: '\uD83D\uDCC1', component: FileManager, color: () => t.blue },
     { id: 'about', title: 'About Me', icon: '\uD83D\uDC64', component: AboutMe, color: () => t.aqua },
     { id: 'projects', title: 'Projects', icon: '\u2B22', component: Projects, color: () => t.purple },
@@ -253,7 +253,7 @@
         }}
         tabindex="-1"
       >
-        <div class="icon-glyph" style="color: {app.color()};">{app.icon}</div>
+        <div class="icon-glyph" style="color: {app.color()};">{@html app.icon}</div>
         <span class="icon-label">{app.title}</span>
       </button>
     {/each}
@@ -263,7 +263,7 @@
     {@const ghostApp = allApps.find(a => a.id === dragId)}
     {#if ghostApp}
       <div class="drag-ghost" style="left: {dragSnapX}px; top: {dragSnapY}px;">
-        <div class="icon-glyph" style="color: {ghostApp.color()};">{ghostApp.icon}</div>
+        <div class="icon-glyph" style="color: {ghostApp.color()};">{@html ghostApp.icon}</div>
         <span class="icon-label">{ghostApp.title}</span>
       </div>
     {/if}
@@ -273,7 +273,7 @@
     {@const menuStyle = `left: ${contextMenu.x}px; top: ${contextMenu.y}px; background: ${t.bgDark}ee; border-color: ${t.border}; color: ${t.fg}; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);`}
     <div class="context-menu" style={menuStyle}>
       <button class="ctx-item" onmousedown={() => { openApp(allApps.find(a => a.id === 'terminal')); closeContextMenu(); }}>
-        <span class="ctx-icon" style="color: {t.fgDim};">{'>'}</span> Terminal
+        <span class="ctx-icon" style="color: {t.green};">{@html `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="18" rx="3"/><polyline points="7 8 11 12 7 16"/><line x1="13" y1="16" x2="17" y2="16"/></svg>`}</span> Terminal
       </button>
       <button class="ctx-item" onmousedown={() => { openApp(allApps.find(a => a.id === 'files')); closeContextMenu(); }}>
         <span class="ctx-icon">{'\uD83D\uDCC1'}</span> Files
@@ -378,6 +378,14 @@
     font-family: monospace;
     font-weight: bold;
     transition: transform 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .icon-glyph :global(svg) {
+    width: 32px;
+    height: 32px;
   }
   .desktop-icon:hover .icon-glyph {
     transform: scale(1.1);

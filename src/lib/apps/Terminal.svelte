@@ -1,4 +1,6 @@
 <script>
+  import { tick } from 'svelte';
+  import { base } from '$app/paths';
   import { currentTheme } from '../stores/theme.js';
   import { themes } from '../themes/palettes.js';
 
@@ -325,24 +327,6 @@
       const icons = 'Papirus-Dark';
       const cpuUsage = Math.floor(Math.random() * 30 + 5);
 
-      const logo = [
-        '                   A',
-        '                  /#\\',
-        '                 /###\\',
-        '                /#####\\',
-        '               /#######\\',
-        '              _ "=######\\',
-        '             /#=_\\#####\\',
-        '            /#############\\',
-        '           /###############\\',
-        '          /#################\\',
-        '         /###################\\',
-        '        /########*"""""*########\\',
-        '       /#######/       \\#######\\',
-        '      /########         ########\\',
-        '     /#########         #####=,_\\',
-      ];
-
       const info = [
         ['OS', 'Arch Linux x86_64'],
         ['Host', hostname],
@@ -362,19 +346,11 @@
       ];
 
       const maxLabel = Math.max(...info.map(i => i[0].length));
-      const out = [];
+      const infoLines = info.map(i =>
+        `${i[0].padEnd(maxLabel)}: ${i[1]}`
+      );
 
-      for (let i = 0; i < Math.max(logo.length, info.length); i++) {
-        const logoLine = i < logo.length ? logo[i] : ' '.repeat(18);
-        const infoLine = i < info.length
-          ? { type: 'styled', style: 'info', label: info[i][0].padEnd(maxLabel), value: info[i][1] }
-          : null;
-        out.push({ type: 'fastfetch-line', logo: logoLine, info: infoLine });
-      }
-
-      out.push({ type: 'fastfetch-bar', color: t.green });
-
-      return out;
+      return [{ type: 'fastfetch-block', infoLines }];
     },
     ping: (args) => {
       if (!args[0]) return ['ping: missing host operand'];
@@ -708,6 +684,32 @@
 
   function focusInput() { inputEl?.focus(); }
 
+  $effect(() => {
+    tick().then(() => inputEl?.focus());
+  });
+
+  let cursorLeft = $state(0);
+
+  function updateCursorPosition() {
+    if (!inputEl) return;
+    const sel = inputEl.selectionStart || 0;
+    const text = inputEl.value.substring(0, sel);
+    const span = document.createElement('span');
+    span.style.font = getComputedStyle(inputEl).font;
+    span.style.visibility = 'hidden';
+    span.style.position = 'absolute';
+    span.style.whiteSpace = 'pre';
+    span.textContent = text;
+    document.body.appendChild(span);
+    cursorLeft = span.offsetWidth;
+    document.body.removeChild(span);
+  }
+
+  $effect(() => {
+    const val = input;
+    tick().then(updateCursorPosition);
+  });
+
   function promptHtml(p) { return `${p.user}@${p.host}:${p.dir}>`; }
 </script>
 
@@ -715,6 +717,7 @@
   class="terminal"
   style="--bg: {t.bgDark}; --fg: {t.fg}; --accent: {t.green}; --dim: {t.fgDim}; --red: {t.red}; --blue: {t.blue}; --orange: {t.orange}; --purple: {t.purple}; --aqua: {t.aqua};"
   onmousedown={focusInput}
+  onclick={focusInput}
   role="textbox"
   tabindex="-1"
 >
@@ -754,19 +757,42 @@
             <span>{line.text}</span>
           {/if}
         </div>
+      {:else if line.type === 'fastfetch-block'}
+        <div class="term-line ff-block">
+          <div class="ff-pfp-wrap">
+            <img src="{base}/pfp.jpg" alt="" class="ff-pfp" />
+          </div>
+          <div class="ff-info-col">
+            {#each line.infoLines as raw}
+              {@const colonIdx = raw.indexOf(':')}
+              {@const label = raw.substring(0, colonIdx)}
+              {@const value = raw.substring(colonIdx + 2)}
+              <div class="ff-info-row">
+                <span style="color: {t.green}; font-weight: bold;">{label}</span><span style="color: {t.dim};">: </span><span style="color: {t.fg};">{value}</span>
+              </div>
+            {/each}
+            <div class="ff-bar-row">
+              {#each [t.red, t.orange, t.yellow || t.orange, t.green, t.blue, t.purple, t.aqua || t.blue] as c}
+                <span style="color: {c};">{'█'.repeat(4)}</span>
+              {/each}
+            </div>
+          </div>
+        </div>
       {:else if line.type === 'fastfetch-line'}
         <div class="term-line ff-line">
-          <span class="ff-logo" style="color: {t.green};">{line.logo}</span>
+          <span class="ff-logo-spacer"></span>
           <span class="ff-info">
             {#if line.info}
-              <span style="color: {t.accent}; font-weight: bold;">{line.info.label}</span><span style="color: {t.dim};">: </span><span style="color: {t.fg};">{line.info.value}</span>
+              <span style="color: {t.green}; font-weight: bold;">{line.info.label}</span><span style="color: {t.dim};">: </span><span style="color: {t.fg};">{line.info.value}</span>
             {/if}
           </span>
         </div>
       {:else if line.type === 'fastfetch-bar'}
         <div class="term-line ff-bar">
-          <span style="color: {t.dim};">                        </span>
-          <span style="color: {t.red};">{`█`.repeat(4)}</span><span style="color: {t.orange};">{`█`.repeat(4)}</span><span style="color: {t.green};">{`█`.repeat(4)}</span><span style="color: {t.blue};">{`█`.repeat(4)}</span><span style="color: {t.purple};">{`█`.repeat(4)}</span>
+          <span class="ff-logo-spacer"></span>
+          {#each [t.red, t.orange, t.yellow || t.orange, t.green, t.blue, t.purple, t.aqua || t.blue] as c}
+            <span style="color: {c};">{'█'.repeat(4)}</span>
+          {/each}
         </div>
       {:else}
         <div class="term-line">{@html line.text}</div>
@@ -799,11 +825,13 @@
           bind:this={inputEl}
           bind:value={input}
           onkeydown={onKeydown}
+          oninput={updateCursorPosition}
+          onclick={updateCursorPosition}
           class="term-input"
           spellcheck="false"
           autocomplete="off"
-          autofocus
         />
+        <span class="block-cursor" style="left: {cursorLeft}px;"></span>
       </div>
     </div>
   </div>
@@ -815,8 +843,9 @@
     background: transparent;
     color: var(--fg);
     font-family: 'JetBrains Mono', 'Fira Code', monospace;
-    font-size: 13px;
-    padding: 12px;
+    font-size: 14px;
+    line-height: 1.5;
+    padding: 16px;
     cursor: text;
     overflow: hidden;
   }
@@ -824,10 +853,11 @@
   .term-output {
     height: 100%;
     overflow-y: auto;
+    user-select: none;
   }
 
   .term-line {
-    line-height: 1.6;
+    line-height: 1.5;
     white-space: pre-wrap;
     word-break: break-all;
   }
@@ -836,7 +866,7 @@
     margin-bottom: 8px;
     padding-bottom: 8px;
     border-bottom: 1px solid var(--dim);
-    opacity: 0.3;
+    opacity: 1;
     font-size: 12px;
   }
 
@@ -861,8 +891,9 @@
 
   .term-input-line {
     display: flex;
-    line-height: 1.6;
+    line-height: 1.5;
     position: relative;
+    align-items: baseline;
   }
 
   .input-wrapper {
@@ -878,7 +909,7 @@
     white-space: pre;
     font-family: inherit;
     font-size: inherit;
-    line-height: 1.6;
+    line-height: 1.5;
   }
 
   .ghost {
@@ -893,24 +924,76 @@
     color: transparent;
     font-family: inherit;
     font-size: inherit;
+    line-height: inherit;
     outline: none;
-    caret-color: var(--accent);
+    caret-color: transparent;
     position: relative;
     z-index: 1;
+  }
+
+  .block-cursor {
+    position: absolute;
+    bottom: 3px;
+    width: 9px;
+    height: 18px;
+    background: var(--accent);
+    pointer-events: none !important;
+    user-select: none;
+    opacity: 0;
+    z-index: 0;
+    animation: blink-block 1s step-end infinite;
+  }
+
+  .term-input:focus ~ .block-cursor {
+    opacity: 1;
+  }
+
+  @keyframes blink-block {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0; }
   }
 
   .search-bar {
     margin-bottom: 4px;
   }
 
-  .ff-line {
+  .ff-block {
     display: flex;
-    white-space: pre;
+    align-items: flex-start;
+    gap: 16px;
   }
 
-  .ff-logo {
-    min-width: 280px;
+  .ff-pfp-wrap {
+    width: 320px;
+    height: 320px;
+    border-radius: 16px;
+    overflow: hidden;
     flex-shrink: 0;
+    border: 2px solid var(--dim);
+  }
+
+  .ff-pfp {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .ff-info-col {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .ff-info-row {
+    white-space: pre;
+    line-height: 1.5;
+  }
+
+  .ff-bar-row {
+    margin-top: 4px;
+    white-space: pre;
+    line-height: 1.2;
   }
 
   .ff-info {
@@ -919,7 +1002,8 @@
 
   .ff-bar {
     white-space: pre;
-    line-height: 1.2;
+    line-height: 1.5;
+    display: flex;
   }
 
   .term-output::-webkit-scrollbar {
