@@ -83,18 +83,14 @@
   ];
 
   const siteImages = [
-    { name: 'Lain', url: `${base}/Pictures/lain.jpg` },
-    { name: 'Mint', url: `${base}/Pictures/mint.jpg` },
     { name: 'Konata', url: `${base}/Pictures/konata.jpg` },
     { name: 'Eblan', url: `${base}/Pictures/Eblan.jpg` },
     { name: 'Eva Gruvbox', url: `${base}/Pictures/Wallpapers/eva_smoothed_gruvbox.png` },
     { name: 'Lain 4x', url: `${base}/Pictures/Wallpapers/lain_upscayl_4x_digital-art-4x.png` },
     { name: 'Mint 4x', url: `${base}/Pictures/Wallpapers/mint_upscayl_4x_digital-art-4x.png` },
-    { name: 'Ultrakill', url: `${base}/Pictures/Wallpapers/Ultrakill poster_upscayl_4x_digital-art-4x.png` },
     { name: 'wallhaven-9o8k9w', url: `${base}/Pictures/Wallpapers/wallhaven-9o8k9w.jpg` },
     { name: 'wallhaven-vpdxqp', url: `${base}/Pictures/Wallpapers/wallhaven-vpdxqp.png` },
     { name: 'wallhaven-yqg2og', url: `${base}/Pictures/Wallpapers/wallhaven-yqg2og.jpg` },
-    { name: 'Unnamed 4x', url: `${base}/Pictures/Wallpapers/unnamed_upscayl_4x_digital-art-4x.png` },
   ];
 
   function setSiteWallpaper(url) {

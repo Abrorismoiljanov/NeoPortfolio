@@ -57,11 +57,8 @@
       { name: 'Photos', type: 'folder', icon: 'folder' },
       { name: 'Wallpapers', type: 'folder', icon: 'folder' },
       { name: 'pfp.jpg', type: 'file', icon: 'image', url: `${base}/Pictures/pfp.jpg` },
-      { name: 'lain.jpg', type: 'file', icon: 'image', url: `${base}/Pictures/lain.jpg` },
       { name: 'konata.jpg', type: 'file', icon: 'image', url: `${base}/Pictures/konata.jpg` },
-      { name: 'mint.jpg', type: 'file', icon: 'image', url: `${base}/Pictures/mint.jpg` },
       { name: 'Eblan.jpg', type: 'file', icon: 'image', url: `${base}/Pictures/Eblan.jpg` },
-
     ],
     '/Pictures/Photos': [
       { name: 'photo_2026-04-29_22-53-27.jpg', type: 'file', icon: 'image', url: `${base}/Pictures/Photos/photo_2026-04-29_22-53-27.jpg` },
@@ -74,8 +71,6 @@
       { name: 'wallhaven-9o8k9w.jpg', type: 'file', icon: 'image', url: `${base}/Pictures/Wallpapers/wallhaven-9o8k9w.jpg` },
       { name: 'wallhaven-vpdxqp.png', type: 'file', icon: 'image', url: `${base}/Pictures/Wallpapers/wallhaven-vpdxqp.png` },
       { name: 'wallhaven-yqg2og.jpg', type: 'file', icon: 'image', url: `${base}/Pictures/Wallpapers/wallhaven-yqg2og.jpg` },
-      { name: 'Ultrakill poster_upscayl_4x_digital-art-4x.png', type: 'file', icon: 'image', url: `${base}/Pictures/Wallpapers/Ultrakill poster_upscayl_4x_digital-art-4x.png` },
-      { name: 'unnamed_upscayl_4x_digital-art-4x.png', type: 'file', icon: 'image', url: `${base}/Pictures/Wallpapers/unnamed_upscayl_4x_digital-art-4x.png` },
     ],
     '/Videos': [
       { name: 'untitled.mp4', type: 'file', icon: 'video', url: `${base}/Videos/untitled.mp4` },
