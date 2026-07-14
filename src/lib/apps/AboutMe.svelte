@@ -60,6 +60,15 @@
     <a href="https://github.com/Abrorismoiljanov" target="_blank" class="link" style="color: {t.accent}; border-color: {t.border};">
       GitHub
     </a>
+    <a href="https://x.com/Krubka272267" target="_blank" class="link" style="color: {t.accent}; border-color: {t.border};">
+      X
+    </a>
+    <a href="https://youtube.com/@Krubka_1" target="_blank" class="link" style="color: {t.accent}; border-color: {t.border};">
+      YouTube
+    </a>
+    <a href="https://krubka-1.itch.io" target="_blank" class="link" style="color: {t.accent}; border-color: {t.border};">
+      itch.io
+    </a>
     <a href="mailto:Krubka_Jo@protonmail.com" class="link" style="color: {t.accent}; border-color: {t.border};">
       Email
     </a>
