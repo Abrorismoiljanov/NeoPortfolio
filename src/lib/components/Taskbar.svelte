@@ -2,16 +2,59 @@
   import { windows, activeWindowId, visibleWindows, minimizedIds, focusWindow, restoreWindow, minimizeWindow } from '../stores/windows.js';
   import { currentTheme } from '../stores/theme.js';
   import { themes } from '../themes/palettes.js';
-  import { onDestroy } from 'svelte';
+  import { onDestroy, tick } from 'svelte';
+  import { animate, spring } from '@motionone/dom';
 
   let t = $derived(themes[$currentTheme]);
   let now = $state(new Date());
   let startMenuOpen = $state(false);
+  let calendarOpen = $state(false);
+  let calMonth = $state(now.getMonth());
+  let calYear = $state(now.getFullYear());
   let batteryLevel = $state(87);
   let wifiStrength = $state(3);
 
   const clockInterval = setInterval(() => { now = new Date(); }, 1000);
   onDestroy(() => clearInterval(clockInterval));
+
+  const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const DAYS = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+
+  let calDays = $derived.by(() => {
+    const first = new Date(calYear, calMonth, 1).getDay();
+    const total = new Date(calYear, calMonth + 1, 0).getDate();
+    const cells = [];
+    for (let i = 0; i < first; i++) cells.push(null);
+    for (let d = 1; d <= total; d++) cells.push(d);
+    return cells;
+  });
+
+  let calToday = $derived({ day: now.getDate(), month: now.getMonth(), year: now.getFullYear() });
+
+  function calPrev() {
+    if (calMonth === 0) { calMonth = 11; calYear--; }
+    else calMonth--;
+  }
+  function calNext() {
+    if (calMonth === 11) { calMonth = 0; calYear++; }
+    else calMonth++;
+  }
+  function calGoToday() {
+    calMonth = now.getMonth();
+    calYear = now.getFullYear();
+  }
+
+  let isFullscreen = $state(false);
+
+  function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+      isFullscreen = true;
+    } else {
+      document.exitFullscreen();
+      isFullscreen = false;
+    }
+  }
 
   function handleTaskbarClick(win) {
     if (win.id === $activeWindowId && !$minimizedIds.has(win.id)) {
@@ -29,17 +72,40 @@
   function formatDate(d) {
     return d.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' });
   }
+
+  function toggleCalendar() {
+    calendarOpen = !calendarOpen;
+    startMenuOpen = false;
+    if (calendarOpen) {
+      tick().then(() => {
+        const el = document.querySelector('.calendar-popup');
+        if (el) animate(el, { opacity: [0, 1], y: [12, 0], scale: [0.95, 1] }, { duration: 0.3, easing: spring({ stiffness: 500, damping: 30 }) });
+      });
+    }
+  }
+  function toggleStartMenu() {
+    startMenuOpen = !startMenuOpen;
+    calendarOpen = false;
+    if (startMenuOpen) {
+      tick().then(() => {
+        const el = document.querySelector('.start-menu');
+        if (el) animate(el, { opacity: [0, 1], y: [16, 0], scale: [0.96, 1] }, { duration: 0.35, easing: spring({ stiffness: 400, damping: 25 }) });
+      });
+    }
+  }
 </script>
 
 <div
   class="taskbar"
   style="--bg: {t.panelBg}; --fg: {t.fg}; --border: {t.border}; --accent: {t.accent}; --active-bg: {t.activeTitleBg}; --hover: {t.hoverBg}; --bg-dark: {t.bgDark};"
 >
-  <button class="start-btn" onmousedown={() => startMenuOpen = !startMenuOpen} aria-label="Start menu">
+  <button class="start-btn" onmousedown={(e) => { animate(e.currentTarget, { scale: [1, 0.85, 1.05, 1] }, { duration: 0.3, easing: spring({ stiffness: 500, damping: 20 }) }); toggleStartMenu(); }} aria-label="Start menu">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1"/>
     </svg>
   </button>
+
+  <div class="taskbar-sep" style="background: {t.border};"></div>
 
   <div class="taskbar-items">
     {#each $windows as win (win.id)}
@@ -71,16 +137,31 @@
       </span>
     </div>
 
-    <button class="clock-btn" onmousedown={() => startMenuOpen = !startMenuOpen}>
+    <button class="fs-btn" onmousedown={toggleFullscreen} title={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}>
+      {#if isFullscreen}
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M8 3v3a2 2 0 01-2 2H3m18 0h-3a2 2 0 01-2-2V3m0 18v-3a2 2 0 012-2h3M3 16h3a2 2 0 012 2v3"/>
+        </svg>
+      {:else}
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M8 3H5a2 2 0 00-2 2v3m18-5h-3m3 0v3m0 12v-3m0 3h-3M3 16v3a2 2 0 002 2h3"/>
+        </svg>
+      {/if}
+    </button>
+
+    <button class="clock-btn" onmousedown={(e) => { animate(e.currentTarget, { scale: [1, 0.93, 1.03, 1] }, { duration: 0.3, easing: spring({ stiffness: 500, damping: 20 }) }); toggleCalendar(); }}>
       <span class="time">{formatTime(now)}</span>
       <span class="date">{formatDate(now)}</span>
     </button>
   </div>
 </div>
 
-{#if startMenuOpen}
+{#if startMenuOpen || calendarOpen}
   <!-- svelte-ignore a11y_no_static_element_interactions -->
-  <div class="start-overlay" onmousedown={() => startMenuOpen = false}></div>
+  <div class="start-overlay" onmousedown={() => { startMenuOpen = false; calendarOpen = false; }}></div>
+{/if}
+
+{#if startMenuOpen}
   <div class="start-menu" style="--bg: {t.bgDark}; --fg: {t.fg}; --border: {t.border}; --hover: {t.hoverBg}; --accent: {t.accent}; --bg-light: {t.bgLight};">
     <div class="start-header">
       <div class="start-logo" style="color: {t.accent};">
@@ -105,6 +186,36 @@
   </div>
 {/if}
 
+{#if calendarOpen}
+  <div class="calendar-popup" style="--bg: {t.bgDark}; --fg: {t.fg}; --border: {t.border}; --hover: {t.hoverBg}; --accent: {t.accent}; --bg-light: {t.bgLight};">
+    <div class="cal-header">
+      <button class="cal-nav" onmousedown={calPrev} style="color: {t.fg};">&lsaquo;</button>
+      <button class="cal-title" onmousedown={calGoToday} style="color: {t.fg};" title="Go to today">{MONTHS[calMonth]} {calYear}</button>
+      <button class="cal-nav" onmousedown={calNext} style="color: {t.fg};">&rsaquo;</button>
+    </div>
+    <div class="cal-days-header">
+      {#each DAYS as d}
+        <span style="color: {t.fgDim};">{d}</span>
+      {/each}
+    </div>
+    <div class="cal-grid">
+      {#each calDays as day}
+        {#if day === null}
+          <span class="cal-cell empty"></span>
+        {:else}
+          <button
+            class="cal-cell"
+            class:today={day === calToday.day && calMonth === calToday.month && calYear === calToday.year}
+            onmousedown={calGoToday}
+            style="color: {t.fg};"
+          >{day}</button>
+        {/if}
+      {/each}
+    </div>
+    <div class="cal-now" style="border-color: {t.border}; color: {t.fgDim};">{formatDate(now)} &middot; {formatTime(now)}</div>
+  </div>
+{/if}
+
 <style>
   .taskbar {
     position: fixed;
@@ -112,14 +223,23 @@
     left: 0;
     right: 0;
     height: 44px;
-    background: var(--bg);
-    border-top: 1px solid var(--border);
+    background: rgba(0, 0, 0, 0.8);
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
     display: flex;
     align-items: center;
     padding: 0 8px;
     z-index: 9999;
-    backdrop-filter: blur(16px);
+    backdrop-filter: blur(12px) saturate(1.2);
+    -webkit-backdrop-filter: blur(12px) saturate(1.2);
     animation: slideUp 0.3s ease 0.5s both;
+  }
+
+  .taskbar-sep {
+    width: 1px;
+    height: 20px;
+    opacity: 0.25;
+    margin: 0 4px;
+    flex-shrink: 0;
   }
 
   @keyframes slideUp {
@@ -137,42 +257,47 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.15s, transform 0.1s;
-    margin-right: 8px;
+    transition: background 0.15s, transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+    flex-shrink: 0;
   }
-  .start-btn:hover { background: var(--hover); }
+  .start-btn:hover { background: rgba(255,255,255,0.1); }
   .start-btn:active { transform: scale(0.92); }
 
   .taskbar-items {
     flex: 1;
     display: flex;
-    gap: 4px;
+    gap: 2px;
     overflow-x: auto;
     padding: 0 4px;
+    min-width: 0;
   }
+  .taskbar-items::-webkit-scrollbar { display: none; }
+  .taskbar-items { scrollbar-width: none; }
 
   .taskbar-item {
     position: relative;
     height: 32px;
+    min-width: 40px;
     width: 40px;
     padding: 0;
     border: none;
     background: transparent;
     color: var(--fg);
     border-radius: 6px;
-    transition: background 0.15s, transform 0.1s;
-    opacity: 0.7;
+    transition: background 0.15s, transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.15s;
+    opacity: 0.6;
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
   }
-  .taskbar-item:hover { background: var(--hover); opacity: 1; }
+  .taskbar-item:hover { background: rgba(255,255,255,0.1); opacity: 1; }
   .taskbar-item.active {
-    background: rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.1);
     opacity: 1;
   }
-  .taskbar-item.minimized { opacity: 0.4; }
-  .taskbar-item:active { transform: scale(0.96); }
+  .taskbar-item.minimized { opacity: 0.35; }
+  .taskbar-item:active { transform: scale(0.92); }
 
   .taskbar-icon {
     font-size: 16px;
@@ -200,14 +325,16 @@
     align-items: center;
     gap: 12px;
     padding-left: 12px;
-    border-left: 1px solid var(--border);
+    border-left: 1px solid rgba(255,255,255,0.1);
     margin-left: 8px;
+    flex-shrink: 0;
   }
 
   .tray-icons {
     display: flex;
     align-items: center;
     gap: 8px;
+    color: var(--fg);
   }
 
   .tray-icon { opacity: 0.6; }
@@ -236,6 +363,21 @@
   }
   .clock-btn:hover { background: var(--hover); }
 
+  .fs-btn {
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: transparent;
+    color: var(--fg);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.6;
+    transition: opacity 0.15s, background 0.15s;
+  }
+  .fs-btn:hover { opacity: 1; background: var(--hover); }
+
   .time {
     font-size: 12px;
     font-family: 'Inter', system-ui, sans-serif;
@@ -252,6 +394,7 @@
     position: fixed;
     inset: 0;
     z-index: 9998;
+    background: rgba(0,0,0,0.1);
   }
 
   .start-menu {
@@ -261,16 +404,13 @@
     width: 300px;
     background: var(--bg);
     border: 1px solid var(--border);
-    border-radius: 10px;
-    box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+    border-radius: 12px;
+    box-shadow: 0 12px 48px rgba(0,0,0,0.5);
     z-index: 10000;
     padding: 16px;
-    animation: menuSlideUp 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-
-  @keyframes menuSlideUp {
-    from { opacity: 0; transform: translateY(8px) scale(0.98); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
+    opacity: 0;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
   }
 
   .start-header {
@@ -336,4 +476,104 @@
     transition: background 0.15s;
   }
   .power-btn:hover { background: var(--hover); }
+
+  .calendar-popup {
+    position: fixed;
+    bottom: 48px;
+    right: 8px;
+    width: 280px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 12px 48px rgba(0,0,0,0.5);
+    z-index: 10000;
+    padding: 14px;
+    opacity: 0;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .cal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  .cal-nav {
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: transparent;
+    border-radius: 6px;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+  }
+  .cal-nav:hover { background: var(--hover); }
+
+  .cal-title {
+    border: none;
+    background: transparent;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'Inter', system-ui, sans-serif;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: background 0.15s;
+  }
+  .cal-title:hover { background: var(--hover); }
+
+  .cal-days-header {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-size: 10px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .cal-days-header span {
+    padding: 4px 0;
+  }
+
+  .cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+  }
+
+  .cal-cell {
+    width: 100%;
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-family: 'Inter', system-ui, sans-serif;
+    border: none;
+    background: transparent;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.12s, transform 0.12s;
+  }
+  .cal-cell:not(.empty):hover { background: var(--hover); transform: scale(1.1); }
+  .cal-cell.empty { cursor: default; }
+  .cal-cell.today {
+    background: var(--accent);
+    color: var(--bg) !important;
+    font-weight: 700;
+  }
+
+  .cal-now {
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px solid;
+    font-size: 11px;
+    text-align: center;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
 </style>

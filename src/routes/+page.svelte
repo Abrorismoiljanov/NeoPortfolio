@@ -17,7 +17,23 @@
   $effect(() => {
     function preventCtx(e) { e.preventDefault(); }
     document.addEventListener('contextmenu', preventCtx);
-    return () => document.removeEventListener('contextmenu', preventCtx);
+
+    function preventZoom(e) {
+      if (e.ctrlKey) e.preventDefault();
+    }
+    function preventZoomKeys(e) {
+      if ((e.ctrlKey || e.metaKey) && (e.key === '=' || e.key === '-' || e.key === '0' || e.key === '+' || e.key === '_')) {
+        e.preventDefault();
+      }
+    }
+    document.addEventListener('wheel', preventZoom, { passive: false });
+    document.addEventListener('keydown', preventZoomKeys);
+
+    return () => {
+      document.removeEventListener('contextmenu', preventCtx);
+      document.removeEventListener('wheel', preventZoom);
+      document.removeEventListener('keydown', preventZoomKeys);
+    };
   });
 
   $effect(() => {

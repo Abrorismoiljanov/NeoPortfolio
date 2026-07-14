@@ -22,14 +22,6 @@
       color: t.orange
     },
     {
-      name: 'rune',
-      lang: 'Rust',
-      desc: 'Editor framework built with egui + wgpu + winit. Dockable panels, custom GPU rendering pipeline, application lifecycle management.',
-      tags: ['Rust', 'wgpu', 'egui', 'winit', 'GPU'],
-      url: null,
-      color: t.purple
-    },
-    {
       name: 'amp',
       lang: 'C++',
       desc: 'CLI music player written in C++. Lightweight, terminal-native audio playback with SDL2_mixer.',
@@ -44,30 +36,6 @@
       tags: ['C++', 'Editor', 'Tooling'],
       url: 'https://github.com/Abrorismoiljanov/ALE',
       color: t.aqua
-    },
-    {
-      name: 'hlidk',
-      lang: 'Rust',
-      desc: 'Game project built with the Bevy engine. Exploring ECS game development in Rust.',
-      tags: ['Rust', 'Bevy', 'ECS', 'Game'],
-      url: null,
-      color: t.red
-    },
-    {
-      name: 'Voxel Engine',
-      lang: 'C++',
-      desc: 'Tiny voxel world renderer. Exploring chunk-based terrain generation and rendering.',
-      tags: ['C++', 'Voxel', '3D', 'Renderer'],
-      url: 'https://github.com/Abrorismoiljanov/Voxel-Engine',
-      color: t.yellow
-    },
-    {
-      name: 'mp',
-      lang: 'Rust',
-      desc: 'Audio analysis and playback project using cpal, lofty, and symphonia for low-level audio processing.',
-      tags: ['Rust', 'Audio', 'cpal', 'symphonia'],
-      url: null,
-      color: t.accent
     }
   ]);
 
@@ -80,37 +48,74 @@
     <span class="count" style="color: {t.fgDim};">{projects.length} repos</span>
   </div>
 
-  <div class="project-grid">
-    {#each projects as project, i}
-      <div
-        class="project-card"
-        style="background: {t.bgLight}; border-color: {expanded === i ? project.color : t.border};"
-      >
-        <button class="card-header" onmousedown={() => expanded = expanded === i ? null : i}>
-          <div class="card-title-row">
-            <span class="lang-dot" style="background: {project.color};"></span>
-            <h3 style="color: {t.fg};">{project.name}</h3>
-          </div>
-          <span class="lang-label" style="color: {t.fgDim};">{project.lang}</span>
-        </button>
-
-        {#if expanded === i}
-          <div class="card-body">
-            <p class="desc" style="color: {t.fg};">{project.desc}</p>
-            <div class="tags">
-              {#each project.tags as tag}
-                <span class="tag" style="background: {t.bgDark}; color: {t.fgDim}; border-color: {t.border};">{tag}</span>
-              {/each}
+  <div class="project-columns">
+    <div class="project-column">
+      {#each [0, 1] as i}
+        {@const project = projects[i]}
+        <div
+          class="project-card"
+          style="background: {t.bgLight}; border-color: {expanded === i ? project.color : t.border};"
+        >
+          <button class="card-header" onmousedown={() => expanded = expanded === i ? null : i}>
+            <div class="card-title-row">
+              <span class="lang-dot" style="background: {project.color};"></span>
+              <h3 style="color: {t.fg};">{project.name}</h3>
             </div>
-            {#if project.url}
-              <a href={project.url} target="_blank" class="project-link" style="color: {project.color}; border-color: {project.color};">
-                View on GitHub &rarr;
-              </a>
-            {/if}
-          </div>
-        {/if}
-      </div>
-    {/each}
+            <span class="lang-label" style="color: {t.fgDim};">{project.lang}</span>
+          </button>
+
+          {#if expanded === i}
+            <div class="card-body">
+              <p class="desc" style="color: {t.fg};">{project.desc}</p>
+              <div class="tags">
+                {#each project.tags as tag}
+                  <span class="tag" style="background: {t.bgDark}; color: {t.fgDim}; border-color: {t.border};">{tag}</span>
+                {/each}
+              </div>
+              {#if project.url}
+                <a href={project.url} target="_blank" class="project-link" style="color: {project.color}; border-color: {project.color};">
+                  View on GitHub &rarr;
+                </a>
+              {/if}
+            </div>
+          {/if}
+        </div>
+      {/each}
+    </div>
+
+    <div class="project-column">
+      {#each [2, 3] as i}
+        {@const project = projects[i]}
+        <div
+          class="project-card"
+          style="background: {t.bgLight}; border-color: {expanded === i ? project.color : t.border};"
+        >
+          <button class="card-header" onmousedown={() => expanded = expanded === i ? null : i}>
+            <div class="card-title-row">
+              <span class="lang-dot" style="background: {project.color};"></span>
+              <h3 style="color: {t.fg};">{project.name}</h3>
+            </div>
+            <span class="lang-label" style="color: {t.fgDim};">{project.lang}</span>
+          </button>
+
+          {#if expanded === i}
+            <div class="card-body">
+              <p class="desc" style="color: {t.fg};">{project.desc}</p>
+              <div class="tags">
+                {#each project.tags as tag}
+                  <span class="tag" style="background: {t.bgDark}; color: {t.fgDim}; border-color: {t.border};">{tag}</span>
+                {/each}
+              </div>
+              {#if project.url}
+                <a href={project.url} target="_blank" class="project-link" style="color: {project.color}; border-color: {project.color};">
+                  View on GitHub &rarr;
+                </a>
+              {/if}
+            </div>
+          {/if}
+        </div>
+      {/each}
+    </div>
   </div>
 </div>
 
@@ -131,9 +136,16 @@
   .projects-header h2 { font-size: 18px; font-weight: 600; margin: 0; }
   .count { font-size: 12px; }
 
-  .project-grid {
+  .project-columns {
     display: grid;
     grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    align-items: start;
+  }
+
+  .project-column {
+    display: flex;
+    flex-direction: column;
     gap: 8px;
   }
 
@@ -141,8 +153,9 @@
     border: 1px solid;
     border-radius: 8px;
     overflow: hidden;
-    transition: border-color 0.2s;
+    transition: border-color 0.2s, transform 0.15s;
   }
+  .project-card:hover { transform: translateY(-1px); }
 
   .card-header {
     display: flex;
@@ -154,7 +167,9 @@
     background: transparent;
     cursor: pointer;
     text-align: left;
+    transition: background 0.12s;
   }
+  .card-header:hover { background: rgba(255,255,255,0.04); }
 
   .card-title-row {
     display: flex;
@@ -202,7 +217,9 @@
     border-radius: 3px;
     font-size: 10px;
     border: 1px solid;
+    transition: background 0.12s;
   }
+  .tag:hover { background: rgba(255,255,255,0.08); }
 
   .project-link {
     display: inline-block;

@@ -2,6 +2,7 @@
   import { currentTheme } from '../stores/theme.js';
   import { themes } from '../themes/palettes.js';
   import { openWindow } from '../stores/windows.js';
+  import { animate, spring } from '@motionone/dom';
 
   import Terminal from '../apps/Terminal.svelte';
   import FileManager from '../apps/FileManager.svelte';
@@ -9,7 +10,10 @@
   import Projects from '../apps/Projects.svelte';
   import Settings from '../apps/Settings.svelte';
   import SystemMonitor from '../apps/SystemMonitor.svelte';
-  import Browser from '../apps/Browser.svelte';
+  import Paint from '../apps/Paint.svelte';
+  import Snake from '../apps/Snake.svelte';
+  import ImageViewer from '../apps/ImageViewer.svelte';
+  import VideoPlayer from '../apps/VideoPlayer.svelte';
 
   let t = $derived(themes[$currentTheme]);
   let currentWallpaper = $state('gradient');
@@ -44,7 +48,10 @@
     { id: 'projects', title: 'Projects', icon: '\u2B22', component: Projects, color: () => t.purple },
     { id: 'settings', title: 'Settings', icon: '\u2699', component: Settings, color: () => t.orange },
     { id: 'sysmon', title: 'System Monitor', icon: '\u25A3', component: SystemMonitor, color: () => t.green },
-    { id: 'browser', title: 'Browser', icon: '\u25C9', component: Browser, color: () => t.blue }
+    { id: 'paint', title: 'Paint', icon: '\u270E', component: Paint, color: () => t.accent },
+    { id: 'snake', title: 'Snake', icon: '\uD83D\uDC0D', component: Snake, color: () => t.green },
+    { id: 'image-viewer', title: 'Image Viewer', icon: '\uD83D\uDDBC', component: ImageViewer, color: () => t.blue, hidden: true },
+    { id: 'video-player', title: 'Video Player', icon: '\u25B6', component: VideoPlayer, color: () => t.red, hidden: true }
   ];
 
   const GRID = 96;
@@ -87,6 +94,28 @@
     localStorage.setItem('os-icon-positions', JSON.stringify(iconPositions));
   }
 
+  function findNearestFreeSpot(x, y, excludeId) {
+    const occupied = new Set();
+    for (const [id, pos] of Object.entries(iconPositions)) {
+      if (id === excludeId) continue;
+      occupied.add(`${pos.x},${pos.y}`);
+    }
+    if (!occupied.has(`${x},${y}`)) return { x, y };
+
+    for (let r = 1; r <= 20; r++) {
+      for (let dx = -r; dx <= r; dx++) {
+        for (let dy = -r; dy <= r; dy++) {
+          if (Math.abs(dx) !== r && Math.abs(dy) !== r) continue;
+          const nx = x + dx * GRID;
+          const ny = y + dy * GRID;
+          if (nx < 0 || ny < 0 || nx > window.innerWidth - GRID || ny > window.innerHeight - 120) continue;
+          if (!occupied.has(`${nx},${ny}`)) return { x: nx, y: ny };
+        }
+      }
+    }
+    return { x, y };
+  }
+
   let dragId = $state(null);
   let isDragging = $state(false);
   let dragOffsetX = 0;
@@ -94,8 +123,10 @@
   let dragRawX = $state(0);
   let dragRawY = $state(0);
 
-  let dragSnapX = $derived(snapToGrid(Math.max(0, Math.min(dragRawX, window.innerWidth - GRID))));
-  let dragSnapY = $derived(snapToGrid(Math.max(0, Math.min(dragRawY, window.innerHeight - 120))));
+  let rawSnapX = $derived(snapToGrid(Math.max(0, Math.min(dragRawX, window.innerWidth - GRID))));
+  let rawSnapY = $derived(snapToGrid(Math.max(0, Math.min(dragRawY, window.innerHeight - 120))));
+  let dragSnapX = $derived(dragId ? findNearestFreeSpot(rawSnapX, rawSnapY, dragId).x : rawSnapX);
+  let dragSnapY = $derived(dragId ? findNearestFreeSpot(rawSnapX, rawSnapY, dragId).y : rawSnapY);
 
   function onIconMouseDown(e, app) {
     if (e.button !== 0) return;
@@ -126,7 +157,8 @@
       window.removeEventListener('mouseup', onUp);
 
       if (isDragging && dragId) {
-        iconPositions[dragId] = { x: dragSnapX, y: dragSnapY };
+        const spot = findNearestFreeSpot(dragSnapX, dragSnapY, dragId);
+        iconPositions[dragId] = spot;
         iconPositions = { ...iconPositions };
         savePositions();
       }
@@ -146,7 +178,10 @@
       projects: { width: 820, height: 580 },
       settings: { width: 560, height: 500 },
       sysmon: { width: 600, height: 480 },
-      browser: { width: 960, height: 640 }
+      paint: { width: 1000, height: 640 },
+      snake: { width: 540, height: 480 },
+      'image-viewer': { width: 600, height: 500 },
+      'video-player': { width: 700, height: 520 }
     };
     openWindow(app.id, app.title, app.component, { ...sizes[app.id], icon: app.icon, iconColor: app.color() });
   }
@@ -182,7 +217,7 @@
   role="application"
 >
   <div class="desktop-icons">
-    {#each allApps as app (app.id)}
+    {#each allApps.filter(a => !a.hidden) as app (app.id)}
       {@const pos = iconPositions[app.id] || { x: 24, y: 24 }}
       {@const isBeingDragged = dragId === app.id && isDragging}
       <button
@@ -190,7 +225,13 @@
         class:dragging={isBeingDragged}
         style="left: {pos.x}px; top: {pos.y}px; z-index: {isBeingDragged ? 0 : 1};"
         onmousedown={(e) => onIconMouseDown(e, app)}
-        ondblclick={() => { if (!isDragging) openApp(app); }}
+        ondblclick={(e) => {
+          if (!isDragging) {
+            const glyph = e.currentTarget.querySelector('.icon-glyph');
+            if (glyph) animate(glyph, { scale: [1, 1.3, 0.9, 1.1, 1] }, { duration: 0.4, easing: spring({ stiffness: 500, damping: 15 }) });
+            openApp(app);
+          }
+        }}
         tabindex="-1"
       >
         <div class="icon-glyph" style="color: {app.color()};">{app.icon}</div>
@@ -210,15 +251,31 @@
   {/if}
 
   {#if contextMenu}
-    <div
-      class="context-menu"
-      style="left: {contextMenu.x}px; top: {contextMenu.y}px; background: {t.bgDark}; border-color: {t.border}; color: {t.fg};"
-    >
-      <button class="ctx-item" onmousedown={() => { openApp(allApps[0]); closeContextMenu(); }}>Open Terminal</button>
-      <button class="ctx-item" onmousedown={() => { openApp(allApps[1]); closeContextMenu(); }}>Open Files</button>
-      <button class="ctx-item" onmousedown={() => { openApp(allApps[5]); closeContextMenu(); }}>System Monitor</button>
+    {@const menuStyle = `left: ${contextMenu.x}px; top: ${contextMenu.y}px; background: ${t.bgDark}ee; border-color: ${t.border}; color: ${t.fg}; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);`}
+    <div class="context-menu" style={menuStyle}>
+      <button class="ctx-item" onmousedown={() => { openApp(allApps.find(a => a.id === 'terminal')); closeContextMenu(); }}>
+        <span class="ctx-icon" style="color: {t.fgDim};">{'>'}</span> Terminal
+      </button>
+      <button class="ctx-item" onmousedown={() => { openApp(allApps.find(a => a.id === 'files')); closeContextMenu(); }}>
+        <span class="ctx-icon">{'\uD83D\uDCC1'}</span> Files
+      </button>
+      <button class="ctx-item" onmousedown={() => { openApp(allApps.find(a => a.id === 'paint')); closeContextMenu(); }}>
+        <span class="ctx-icon" style="color: {t.accent};">{'\u270E'}</span> Paint
+      </button>
+      <button class="ctx-item" onmousedown={() => { openApp(allApps.find(a => a.id === 'snake')); closeContextMenu(); }}>
+        <span class="ctx-icon" style="color: {t.green};">{'\uD83D\uDC0D'}</span> Snake
+      </button>
       <div class="ctx-sep" style="border-color: {t.border};"></div>
-      <button class="ctx-item" onmousedown={() => { openApp(allApps[4]); closeContextMenu(); }}>Settings</button>
+      <button class="ctx-item" onmousedown={() => { openApp(allApps.find(a => a.id === 'settings')); closeContextMenu(); }}>
+        <span class="ctx-icon" style="color: {t.orange};">{'\u2699'}</span> Settings
+      </button>
+      <button class="ctx-item" onmousedown={() => { openApp(allApps.find(a => a.id === 'sysmon')); closeContextMenu(); }}>
+        <span class="ctx-icon" style="color: {t.green};">{'\u25A3'}</span> System Monitor
+      </button>
+      <div class="ctx-sep" style="border-color: {t.border};"></div>
+      <button class="ctx-item" onmousedown={() => { currentWallpaper = 'gradient'; localStorage.setItem('os-wallpaper', 'gradient'); closeContextMenu(); }}>
+        <span class="ctx-icon" style="color: {t.blue};">{'\uD83C\uDFA8'}</span> Reset Wallpaper
+      </button>
     </div>
   {/if}
 </div>
@@ -227,7 +284,6 @@
   .desktop {
     position: fixed;
     inset: 0;
-    bottom: 44px;
     overflow: hidden;
     transition: background 0.5s ease;
   }
@@ -245,17 +301,18 @@
     align-items: center;
     width: 80px;
     padding: 8px 4px;
-    border: none;
+    border: 1px solid transparent;
     background: transparent;
     border-radius: 8px;
     cursor: grab;
-    transition: background 0.15s, opacity 0.15s;
+    transition: background 0.15s, border-color 0.15s, opacity 0.15s;
     gap: 4px;
     user-select: none;
     pointer-events: auto;
   }
   .desktop-icon:hover {
     background: rgba(255,255,255,0.08);
+    border-color: rgba(255,255,255,0.12);
   }
   .desktop-icon:active {
     cursor: grabbing;
@@ -280,9 +337,20 @@
     background: rgba(255,255,255,0.1);
     border: 2px dashed rgba(255,255,255,0.4);
     transition: left 0.08s ease-out, top 0.08s ease-out;
+    animation: ghostWobble 0.6s ease-in-out infinite alternate;
   }
   .drag-ghost .icon-glyph {
     filter: drop-shadow(0 0 6px rgba(255,255,255,0.3));
+    animation: glyphPulse 0.5s ease-in-out infinite alternate;
+  }
+
+  @keyframes ghostWobble {
+    from { transform: rotate(-2deg) scale(1.05); }
+    to { transform: rotate(2deg) scale(1.08); }
+  }
+  @keyframes glyphPulse {
+    from { filter: drop-shadow(0 0 4px rgba(255,255,255,0.2)); }
+    to { filter: drop-shadow(0 0 10px rgba(255,255,255,0.5)); }
   }
 
   .icon-glyph {
@@ -308,30 +376,40 @@
   .context-menu {
     position: fixed;
     min-width: 160px;
-    border-radius: 8px;
+    border-radius: 10px;
     border: 1px solid;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
     padding: 4px;
     z-index: 99999;
     animation: menuPop 0.12s ease;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
   }
 
   .ctx-item {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 8px;
     width: 100%;
-    padding: 8px 12px;
+    padding: 7px 12px;
     border: none;
     background: transparent;
     color: inherit;
     font-size: 13px;
     font-family: 'Inter', system-ui, sans-serif;
     text-align: left;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
     transition: background 0.1s;
   }
   .ctx-item:hover {
     background: rgba(255,255,255,0.1);
+  }
+  .ctx-icon {
+    font-size: 14px;
+    width: 20px;
+    text-align: center;
+    flex-shrink: 0;
   }
 
   .ctx-sep {

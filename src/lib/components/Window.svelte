@@ -124,17 +124,21 @@
 
   function handleClose() {
     opened = false;
-    setTimeout(() => closeWindow(id), 200);
+    setTimeout(() => closeWindow(id), 350);
   }
 
   function handleMinimize() {
     opened = false;
-    setTimeout(() => minimizeWindow(id), 200);
+    setTimeout(() => minimizeWindow(id), 350);
   }
 
   function preventContextMenu(e) {
     e.preventDefault();
   }
+
+  const cssVars = $derived(
+    `--bg: ${t.bg}; --bg-light: ${t.bgLight}; --fg: ${t.fg}; --fg-dim: ${t.fgDim}; --border: ${t.border}; --title-bg: ${t.titleBg}; --title-fg: ${titleFg}; --active-title-bg: ${t.activeTitleBg}; --active-title-fg: ${t.activeTitleFg}; --shadow: ${t.shadow}; --panel-bg: ${t.panelBg}; --accent: ${t.accent}; --glass-bg: ${t.glassBg}; --glass-blur: ${t.glassBlur}; --title-glass: ${t.titleGlassBg}; --title-glass-active: ${t.titleGlassActiveBg};`
+  );
 </script>
 
 <svelte:window onmousemove={onMouseMove} onmouseup={onMouseUp} />
@@ -144,13 +148,12 @@
   class="window"
   class:active={isActive}
   class:opened
-  class:minimized={isMinimized}
   class:closing={!opened}
   class:wobbling={dragging}
   class:fullscreen={isFullscreen}
   style={isFullscreen
-    ? `left: 0; top: 0; width: 100%; height: calc(100vh - 44px); z-index: ${isActive ? 1000 : 100}; --bg: ${t.bg}; --bg-light: ${t.bgLight}; --fg: ${t.fg}; --fg-dim: ${t.fgDim}; --border: ${t.border}; --title-bg: ${t.titleBg}; --title-fg: ${titleFg}; --active-title-bg: ${t.activeTitleBg}; --active-title-fg: ${t.activeTitleFg}; --shadow: ${t.shadow}; --panel-bg: ${t.panelBg}; --accent: ${t.accent}; --glass-bg: ${t.glassBg}; --glass-blur: ${t.glassBlur}; --title-glass: ${t.titleGlassBg}; --title-glass-active: ${t.titleGlassActiveBg};`
-    : `left: ${x}px; top: ${y}px; width: ${width}px; height: ${height}px; z-index: ${isActive ? 1000 : 100}; --bg: ${t.bg}; --bg-light: ${t.bgLight}; --fg: ${t.fg}; --fg-dim: ${t.fgDim}; --border: ${t.border}; --title-bg: ${t.titleBg}; --title-fg: ${titleFg}; --active-title-bg: ${t.activeTitleBg}; --active-title-fg: ${t.activeTitleFg}; --shadow: ${t.shadow}; --panel-bg: ${t.panelBg}; --accent: ${t.accent}; --glass-bg: ${t.glassBg}; --glass-blur: ${t.glassBlur}; --title-glass: ${t.titleGlassBg}; --title-glass-active: ${t.titleGlassActiveBg};`
+    ? `left: 0; top: 0; width: 100%; height: calc(100vh - 44px); z-index: ${isActive ? 1000 : 100}; ${cssVars}`
+    : `left: ${x}px; top: ${y}px; width: ${width}px; height: ${height}px; z-index: ${isActive ? 1000 : 100}; ${cssVars}`
   }
   onmousedown={() => focusWindow(id)}
   oncontextmenu={preventContextMenu}
@@ -184,7 +187,6 @@
   </div>
 
   {#if !isFullscreen}
-    <!-- Resize handles -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div class="resize-handle e" onmousedown={(e) => onResizeMouseDown(e, 'e')}></div>
     <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -216,12 +218,17 @@
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 8px 32px var(--shadow);
-    border: 1px solid var(--border);
-    backdrop-filter: blur(var(--glass-blur)) saturate(1.4);
-    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.4);
-    transition: box-shadow 0.2s ease, opacity 0.2s ease, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), border-radius 0.2s ease;
+    border: 2px solid var(--border);
+    backdrop-filter: blur(calc(var(--glass-blur) * 1px)) saturate(1.3);
+    -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 1px)) saturate(1.3);
     opacity: 0;
-    transform: scale(0.92) translateY(10px);
+    transform: scale(0.88) translateY(20px);
+    transition:
+      opacity 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+      transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+      box-shadow 0.3s ease,
+      border-color 0.2s ease,
+      border-radius 0.2s ease;
   }
   .window.opened {
     opacity: 1;
@@ -229,27 +236,25 @@
   }
   .window.closing {
     opacity: 0;
-    transform: scale(0.92) translateY(10px);
-    transition: opacity 0.2s ease, transform 0.2s ease;
+    transform: scale(0.85) translateY(-10px);
+    transition: opacity 0.3s ease-out, transform 0.3s cubic-bezier(0.4, 0, 1, 1);
   }
-  .window.minimized {
-    opacity: 0;
-    transform: scale(0.6) translateY(60px);
-    pointer-events: none;
-    transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  .window.wobbling {
+    box-shadow: 0 16px 56px var(--shadow);
+    transform: scale(1.02);
+    transition: box-shadow 0.2s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
   .window.active {
     box-shadow: 0 12px 48px var(--shadow);
   }
+  .window:not(.active) {
+    opacity: 0.92;
+    filter: brightness(0.95);
+  }
   .window.fullscreen {
     border-radius: 0;
     border: none;
-    transition: left 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), top 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), height 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), border-radius 0.2s ease, box-shadow 0.2s ease;
-  }
-  .window.wobbling {
-    box-shadow: 0 16px 56px var(--shadow);
-    transform: scale(1.01);
-    transition: box-shadow 0.15s ease, transform 0.15s ease;
+    transition: left 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), top 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), height 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), border-radius 0.2s ease, box-shadow 0.2s ease;
   }
 
   .title-bar {
@@ -263,9 +268,12 @@
     cursor: grab;
     user-select: none;
     flex-shrink: 0;
-    transition: background 0.2s;
+    transition: background 0.2s, color 0.2s;
     border-bottom: 1px solid rgba(255,255,255,0.06);
+    backdrop-filter: blur(calc(var(--glass-blur) * 1px)) saturate(1.3);
+    -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 1px)) saturate(1.3);
   }
+  .title-bar:active { cursor: grabbing; }
   .active .title-bar {
     background: var(--title-glass-active);
     color: var(--active-title-fg);
@@ -296,18 +304,19 @@
     align-items: center;
     justify-content: center;
     opacity: 0.7;
-    transition: opacity 0.15s, background 0.15s, transform 0.1s;
+    transition: opacity 0.15s, background 0.15s, transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
   .win-btn:hover {
     opacity: 1;
     background: rgba(255,255,255,0.15);
   }
   .win-btn:active {
-    transform: scale(0.9);
+    transform: scale(0.85);
   }
   .win-btn.close:hover {
     background: #e81123;
     color: white;
+    opacity: 1;
   }
 
   .win-content {
@@ -315,6 +324,8 @@
     overflow: auto;
     background: var(--glass-bg);
     color: var(--fg);
+    backdrop-filter: blur(calc(var(--glass-blur) * 1px)) saturate(1.3);
+    -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 1px)) saturate(1.3);
   }
 
   .resize-handle { position: absolute; }
@@ -330,7 +341,6 @@
   .snap-preview {
     position: fixed;
     pointer-events: none;
-    transition: all 0.2s ease;
     animation: snapFadeIn 0.15s ease;
   }
 

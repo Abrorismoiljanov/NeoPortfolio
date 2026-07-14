@@ -29,10 +29,10 @@ export const themes = {
     hoverBg: '#504945',
     scrollbar: '#504945',
     wallpaper: 'linear-gradient(135deg, #1d2021 0%, #282828 40%, #3c3836 100%)',
-    glassBg: 'rgba(29,32,33,0.78)',
-    glassBlur: 20,
-    titleGlassBg: 'rgba(80,73,69,0.88)',
-    titleGlassActiveBg: 'rgba(214,93,14,0.92)'
+    glassBg: 'rgba(29,32,33,0.55)',
+    glassBlur: 6,
+    titleGlassBg: 'rgba(80,73,69,0.7)',
+    titleGlassActiveBg: 'rgba(214,93,14,0.75)'
   },
   catppuccin: {
     name: 'Catppuccin Mocha',
@@ -64,10 +64,10 @@ export const themes = {
     hoverBg: '#45475a',
     scrollbar: '#45475a',
     wallpaper: 'linear-gradient(135deg, #11111b 0%, #1e1e2e 40%, #313244 100%)',
-    glassBg: 'rgba(17,17,27,0.78)',
-    glassBlur: 20,
-    titleGlassBg: 'rgba(69,71,90,0.88)',
-    titleGlassActiveBg: 'rgba(203,166,247,0.92)'
+    glassBg: 'rgba(17,17,27,0.55)',
+    glassBlur: 6,
+    titleGlassBg: 'rgba(69,71,90,0.7)',
+    titleGlassActiveBg: 'rgba(203,166,247,0.75)'
   },
   dracula: {
     name: 'Dracula',
@@ -99,10 +99,10 @@ export const themes = {
     hoverBg: '#6272a4',
     scrollbar: '#6272a4',
     wallpaper: 'linear-gradient(135deg, #191a21 0%, #282a36 40%, #44475a 100%)',
-    glassBg: 'rgba(25,26,33,0.78)',
-    glassBlur: 20,
-    titleGlassBg: 'rgba(98,114,164,0.88)',
-    titleGlassActiveBg: 'rgba(255,121,198,0.92)'
+    glassBg: 'rgba(25,26,33,0.55)',
+    glassBlur: 6,
+    titleGlassBg: 'rgba(98,114,164,0.7)',
+    titleGlassActiveBg: 'rgba(255,121,198,0.75)'
   },
   nord: {
     name: 'Nord',
@@ -134,10 +134,10 @@ export const themes = {
     hoverBg: '#434c5e',
     scrollbar: '#434c5e',
     wallpaper: 'linear-gradient(135deg, #242933 0%, #2e3440 40%, #3b4252 100%)',
-    glassBg: 'rgba(36,41,51,0.78)',
-    glassBlur: 20,
-    titleGlassBg: 'rgba(67,76,94,0.88)',
-    titleGlassActiveBg: 'rgba(136,192,208,0.92)'
+    glassBg: 'rgba(36,41,51,0.55)',
+    glassBlur: 6,
+    titleGlassBg: 'rgba(67,76,94,0.7)',
+    titleGlassActiveBg: 'rgba(136,192,208,0.75)'
   },
   tokyonight: {
     name: 'Tokyo Night',
@@ -169,10 +169,10 @@ export const themes = {
     hoverBg: '#414868',
     scrollbar: '#414868',
     wallpaper: 'linear-gradient(135deg, #16161e 0%, #1a1b26 40%, #24283b 100%)',
-    glassBg: 'rgba(22,22,30,0.78)',
-    glassBlur: 20,
-    titleGlassBg: 'rgba(65,72,104,0.88)',
-    titleGlassActiveBg: 'rgba(187,154,247,0.92)'
+    glassBg: 'rgba(22,22,30,0.55)',
+    glassBlur: 6,
+    titleGlassBg: 'rgba(65,72,104,0.7)',
+    titleGlassActiveBg: 'rgba(187,154,247,0.75)'
   },
   solarized: {
     name: 'Solarized Dark',
@@ -204,9 +204,9 @@ export const themes = {
     hoverBg: '#586e75',
     scrollbar: '#586e75',
     wallpaper: 'linear-gradient(135deg, #001e27 0%, #002b36 40%, #073642 100%)',
-    glassBg: 'rgba(0,30,39,0.78)',
-    glassBlur: 20,
-    titleGlassBg: 'rgba(88,110,117,0.88)',
-    titleGlassActiveBg: 'rgba(181,137,0,0.92)'
+    glassBg: 'rgba(0,30,39,0.55)',
+    glassBlur: 6,
+    titleGlassBg: 'rgba(88,110,117,0.7)',
+    titleGlassActiveBg: 'rgba(181,137,0,0.75)'
   }
 };

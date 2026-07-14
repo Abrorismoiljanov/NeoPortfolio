@@ -97,10 +97,8 @@
   {:else if phase === 'login'}
     <div class="login-content" class:visible={showLogin}>
       <div class="login-card" style="background: {t.bgLight}40; border-color: {t.border}; backdrop-filter: blur(20px);">
-        <div class="login-avatar" style="background: {t.accent};">
-          <span style="color: white; font-size: 28px; font-weight: 700;">A</span>
-        </div>
-        <h2 class="login-name" style="color: {t.fg};">Abror</h2>
+        <img src="/pfp.jpg" alt="Profile" class="login-avatar" />
+        <h2 class="login-name" style="color: {t.fg};">Krubka</h2>
         <p class="login-hint" style="color: {t.fgDim};">Click sign in or press Enter (no password needed)</p>
 
         {#if loginError}
@@ -242,9 +240,7 @@
     width: 72px;
     height: 72px;
     border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    object-fit: cover;
     margin-bottom: 4px;
   }
 

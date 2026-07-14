@@ -354,9 +354,9 @@
     font-size: 12px;
     font-family: 'Inter', system-ui, sans-serif;
     cursor: pointer;
-    transition: opacity 0.15s;
+    transition: opacity 0.15s, transform 0.12s;
   }
-  .remove-btn:hover { opacity: 0.8; }
+  .remove-btn:hover { opacity: 0.8; transform: translateY(-1px); }
 
   .info-row {
     display: flex;
@@ -364,5 +364,6 @@
     padding: 8px 0;
     border-bottom: 1px solid;
     font-size: 13px;
+    transition: background 0.12s;
   }
 </style>

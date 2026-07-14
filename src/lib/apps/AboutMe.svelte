@@ -7,15 +7,13 @@
 
 <div class="about" style="--bg: {t.bg}; --fg: {t.fg}; --fg-dim: {t.fgDim}; --accent: {t.accent}; --accent-alt: {t.accentAlt}; --border: {t.border}; --bg-light: {t.bgLight};">
   <div class="profile-header">
-    <div class="avatar" style="background: {t.accent};">
-      <span class="avatar-text">A</span>
-    </div>
-    <h1 class="name">Abror Ismoiljanov</h1>
-    <p class="tagline" style="color: {t.fgDim};">Systems Programmer & Engine Developer</p>
+    <img src="/pfp.jpg" alt="Profile" class="avatar" />
+    <h1 class="name">Krubka</h1>
+    <p class="tagline" style="color: {t.fgDim};">Systems Programmer & Game Engine Developer</p>
   </div>
 
   <div class="bio">
-    <p>17-year-old building game engines, tooling, and low-level software in C++ and Rust on Arch Linux.</p>
+    <p>Building game engines, tooling, and low-level software in C++ and Rust on Arch Linux.</p>
     <p>I like writing editors, ECS architectures, build systems, and things that talk directly to hardware.</p>
   </div>
 
@@ -25,7 +23,7 @@
       <div class="skill-group">
         <h3 style="color: {t.accentAlt};">Languages</h3>
         <div class="tags">
-          {#each ['C++', 'Rust', 'JavaScript', 'Go', 'Python', 'Lua'] as skill}
+          {#each ['C++', 'Rust', 'JavaScript', 'Go', 'Python', 'Lua', 'TypeScript'] as skill}
             <span class="tag" style="background: {t.bgLight}; color: {t.fg}; border-color: {t.border};">{skill}</span>
           {/each}
         </div>
@@ -33,7 +31,7 @@
       <div class="skill-group">
         <h3 style="color: {t.accentAlt};">Graphics & Engines</h3>
         <div class="tags">
-          {#each ['OpenGL', 'wgpu', 'SDL2', 'ImGui', 'Bevy', 'macroquad'] as skill}
+          {#each ['OpenGL', 'SDL2', 'ImGui', 'React'] as skill}
             <span class="tag" style="background: {t.bgLight}; color: {t.fg}; border-color: {t.border};">{skill}</span>
           {/each}
         </div>
@@ -84,15 +82,9 @@
     width: 80px;
     height: 80px;
     border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    object-fit: cover;
     margin: 0 auto 12px;
-  }
-  .avatar-text {
-    font-size: 32px;
-    font-weight: 700;
-    color: white;
+    display: block;
   }
 
   .name {
@@ -145,7 +137,9 @@
     border-radius: 4px;
     font-size: 12px;
     border: 1px solid;
+    transition: background 0.15s, transform 0.12s;
   }
+  .tag:hover { transform: scale(1.05); }
 
   .links {
     display: flex;
@@ -161,7 +155,7 @@
     text-decoration: none;
     font-size: 13px;
     font-weight: 500;
-    transition: opacity 0.15s;
+    transition: opacity 0.15s, transform 0.12s;
   }
-  .link:hover { opacity: 0.8; }
+  .link:hover { opacity: 0.8; transform: translateY(-1px); }
 </style>
