@@ -83,7 +83,6 @@
   ];
 
   const siteImages = [
-    { name: 'Konata', url: `${base}/Pictures/konata.jpg` },
     { name: 'Eblan', url: `${base}/Pictures/Eblan.jpg` },
     { name: 'Eva Gruvbox', url: `${base}/Pictures/Wallpapers/eva_smoothed_gruvbox.png` },
     { name: 'Lain 4x', url: `${base}/Pictures/Wallpapers/lain_upscayl_4x_digital-art-4x.png` },
@@ -246,6 +245,21 @@
       <span style="color: {t.fgDim};">Current Theme</span>
       <span style="color: {t.fg};">{t.name}</span>
     </div>
+  </div>
+
+  <div class="section">
+    <h3 style="color: {t.accent};">Storage</h3>
+    <p class="section-desc" style="color: {t.fgDim};">Clear saved preferences and cached data.</p>
+    <button class="remove-btn" style="color: {t.red}; border-color: {t.red}40;" onmousedown={() => {
+      localStorage.removeItem('os-theme');
+      localStorage.removeItem('os-wallpaper');
+      localStorage.removeItem('os-wallpaper-image');
+      localStorage.removeItem('os-icon-positions');
+      localStorage.removeItem('os-terminal-history');
+      window.location.reload();
+    }}>
+      Clear All Cache
+    </button>
   </div>
 </div>
 

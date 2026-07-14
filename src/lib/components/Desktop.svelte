@@ -1,4 +1,5 @@
 <script>
+  import { base } from '$app/paths';
   import { currentTheme } from '../stores/theme.js';
   import { themes } from '../themes/palettes.js';
   import { openWindow } from '../stores/windows.js';
@@ -19,11 +20,29 @@
   let currentWallpaper = $state('gradient');
   let customImage = $state(null);
 
+  const randomWallpapers = [
+    `${base}/Pictures/Eblan.jpg`,
+    `${base}/Pictures/Wallpapers/eva_smoothed_gruvbox.png`,
+    `${base}/Pictures/Wallpapers/lain_upscayl_4x_digital-art-4x.png`,
+    `${base}/Pictures/Wallpapers/mint_upscayl_4x_digital-art-4x.png`,
+    `${base}/Pictures/Wallpapers/wallhaven-9o8k9w.jpg`,
+    `${base}/Pictures/Wallpapers/wallhaven-vpdxqp.png`,
+    `${base}/Pictures/Wallpapers/wallhaven-yqg2og.jpg`,
+  ];
+
   $effect(() => {
     const saved = localStorage.getItem('os-wallpaper');
-    if (saved) currentWallpaper = saved;
-    const img = localStorage.getItem('os-wallpaper-image');
-    if (img) customImage = img;
+    if (saved) {
+      currentWallpaper = saved;
+      const img = localStorage.getItem('os-wallpaper-image');
+      if (img) customImage = img;
+    } else {
+      const pick = randomWallpapers[Math.floor(Math.random() * randomWallpapers.length)];
+      customImage = pick;
+      currentWallpaper = 'custom';
+      localStorage.setItem('os-wallpaper', 'custom');
+      localStorage.setItem('os-wallpaper-image', pick);
+    }
   });
 
   const wallpapers = {

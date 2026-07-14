@@ -57,7 +57,6 @@
       { name: 'Photos', type: 'folder', icon: 'folder' },
       { name: 'Wallpapers', type: 'folder', icon: 'folder' },
       { name: 'pfp.jpg', type: 'file', icon: 'image', url: `${base}/Pictures/pfp.jpg` },
-      { name: 'konata.jpg', type: 'file', icon: 'image', url: `${base}/Pictures/konata.jpg` },
       { name: 'Eblan.jpg', type: 'file', icon: 'image', url: `${base}/Pictures/Eblan.jpg` },
     ],
     '/Pictures/Photos': [
