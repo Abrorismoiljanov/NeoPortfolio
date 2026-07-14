@@ -1,4 +1,5 @@
 <script>
+  import { base } from '$app/paths';
   import { currentTheme } from '../stores/theme.js';
   import { themes } from '../themes/palettes.js';
 
@@ -80,6 +81,29 @@
     { id: 'dots', name: 'Dots', preview: (t) => `radial-gradient(circle at 50% 50%, ${t.bgLight} 1px, transparent 1px) 0 0 / 24px 24px, ${t.bgDark}` },
     { id: 'stripes', name: 'Diagonal Stripes', preview: (t) => `repeating-linear-gradient(45deg, transparent, transparent 10px, ${t.bgLight}10 10px, ${t.bgLight}10 20px), ${t.bgDark}` },
   ];
+
+  const siteImages = [
+    { name: 'Lain', url: `${base}/Pictures/lain.jpg` },
+    { name: 'Mint', url: `${base}/Pictures/mint.jpg` },
+    { name: 'Konata', url: `${base}/Pictures/konata.jpg` },
+    { name: 'Eblan', url: `${base}/Pictures/Eblan.jpg` },
+    { name: 'Eva Gruvbox', url: `${base}/Pictures/Wallpapers/eva_smoothed_gruvbox.png` },
+    { name: 'Lain 4x', url: `${base}/Pictures/Wallpapers/lain_upscayl_4x_digital-art-4x.png` },
+    { name: 'Mint 4x', url: `${base}/Pictures/Wallpapers/mint_upscayl_4x_digital-art-4x.png` },
+    { name: 'Ultrakill', url: `${base}/Pictures/Wallpapers/Ultrakill poster_upscayl_4x_digital-art-4x.png` },
+    { name: 'wallhaven-9o8k9w', url: `${base}/Pictures/Wallpapers/wallhaven-9o8k9w.jpg` },
+    { name: 'wallhaven-vpdxqp', url: `${base}/Pictures/Wallpapers/wallhaven-vpdxqp.png` },
+    { name: 'wallhaven-yqg2og', url: `${base}/Pictures/Wallpapers/wallhaven-yqg2og.jpg` },
+    { name: 'Unnamed 4x', url: `${base}/Pictures/Wallpapers/unnamed_upscayl_4x_digital-art-4x.png` },
+  ];
+
+  function setSiteWallpaper(url) {
+    customImage = url;
+    currentWallpaper = 'custom';
+    localStorage.setItem('os-wallpaper', 'custom');
+    localStorage.setItem('os-wallpaper-image', url);
+    window.dispatchEvent(new CustomEvent('wallpaper-change', { detail: { type: 'custom', image: url } }));
+  }
 </script>
 
 <!-- svelte-ignore a11y_consider_explicit_label -->
@@ -188,6 +212,28 @@
         Remove Custom Wallpaper
       </button>
     {/if}
+  </div>
+
+  <div class="section">
+    <h3 style="color: {t.accent};">Site Images</h3>
+    <p class="section-desc" style="color: {t.fgDim};">Set any image from your Pictures as wallpaper.</p>
+
+    <div class="wallpaper-grid">
+      {#each siteImages as img}
+        <button
+          class="wallpaper-card"
+          class:active={currentWallpaper === 'custom' && customImage === img.url}
+          style="border-color: {currentWallpaper === 'custom' && customImage === img.url ? t.accent : t.border};"
+          onmousedown={() => setSiteWallpaper(img.url)}
+        >
+          <div class="wallpaper-preview" style="background: url({img.url}) center/cover no-repeat;"></div>
+          <span class="wallpaper-name" style="color: {t.fg};">{img.name}</span>
+          {#if currentWallpaper === 'custom' && customImage === img.url}
+            <span class="wallpaper-check" style="color: {t.accent};">&#10003;</span>
+          {/if}
+        </button>
+      {/each}
+    </div>
   </div>
 
   <div class="section">
