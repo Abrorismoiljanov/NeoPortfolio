@@ -1,4 +1,5 @@
 <script>
+  import { base } from '$app/paths';
   import { currentTheme } from '../stores/theme.js';
   import { themes } from '../themes/palettes.js';
 
@@ -7,7 +8,7 @@
 
 <div class="about" style="--bg: {t.bg}; --fg: {t.fg}; --fg-dim: {t.fgDim}; --accent: {t.accent}; --accent-alt: {t.accentAlt}; --border: {t.border}; --bg-light: {t.bgLight};">
   <div class="profile-header">
-    <img src="/pfp.jpg" alt="Profile" class="avatar" />
+    <img src="{base}/pfp.jpg" alt="Profile" class="avatar" />
     <h1 class="name">Krubka</h1>
     <p class="tagline" style="color: {t.fgDim};">Systems Programmer & Game Engine Developer</p>
   </div>

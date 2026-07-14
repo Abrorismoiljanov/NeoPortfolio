@@ -1,4 +1,5 @@
 <script>
+  import { base } from '$app/paths';
   import { currentTheme } from '../stores/theme.js';
   import { themes } from '../themes/palettes.js';
   import { onMount } from 'svelte';
@@ -97,7 +98,7 @@
   {:else if phase === 'login'}
     <div class="login-content" class:visible={showLogin}>
       <div class="login-card" style="background: {t.bgLight}40; border-color: {t.border}; backdrop-filter: blur(20px);">
-        <img src="/pfp.jpg" alt="Profile" class="login-avatar" />
+        <img src="{base}/pfp.jpg" alt="Profile" class="login-avatar" />
         <h2 class="login-name" style="color: {t.fg};">Krubka</h2>
         <p class="login-hint" style="color: {t.fgDim};">Click sign in or press Enter (no password needed)</p>
 

@@ -1,4 +1,5 @@
 <script>
+  import { base } from '$app/paths';
   import { currentTheme } from '../stores/theme.js';
   import { themes } from '../themes/palettes.js';
   import { openWindow } from '../stores/windows.js';
@@ -55,29 +56,29 @@
     '/Pictures': [
       { name: 'Photos', type: 'folder', icon: 'folder' },
       { name: 'Wallpapers', type: 'folder', icon: 'folder' },
-      { name: 'pfp.jpg', type: 'file', icon: 'image', url: '/Pictures/pfp.jpg' },
-      { name: 'lain.jpg', type: 'file', icon: 'image', url: '/Pictures/lain.jpg' },
-      { name: 'konata.jpg', type: 'file', icon: 'image', url: '/Pictures/konata.jpg' },
-      { name: 'mint.jpg', type: 'file', icon: 'image', url: '/Pictures/mint.jpg' },
-      { name: 'Eblan.jpg', type: 'file', icon: 'image', url: '/Pictures/Eblan.jpg' },
+      { name: 'pfp.jpg', type: 'file', icon: 'image', url: `${base}/Pictures/pfp.jpg` },
+      { name: 'lain.jpg', type: 'file', icon: 'image', url: `${base}/Pictures/lain.jpg` },
+      { name: 'konata.jpg', type: 'file', icon: 'image', url: `${base}/Pictures/konata.jpg` },
+      { name: 'mint.jpg', type: 'file', icon: 'image', url: `${base}/Pictures/mint.jpg` },
+      { name: 'Eblan.jpg', type: 'file', icon: 'image', url: `${base}/Pictures/Eblan.jpg` },
 
     ],
     '/Pictures/Photos': [
-      { name: 'photo_2026-04-29_22-53-27.jpg', type: 'file', icon: 'image', url: '/Pictures/Photos/photo_2026-04-29_22-53-27.jpg' },
-      { name: 'photo_2026-05-01_18-29-05.jpg', type: 'file', icon: 'image', url: '/Pictures/Photos/photo_2026-05-01_18-29-05.jpg' },
+      { name: 'photo_2026-04-29_22-53-27.jpg', type: 'file', icon: 'image', url: `${base}/Pictures/Photos/photo_2026-04-29_22-53-27.jpg` },
+      { name: 'photo_2026-05-01_18-29-05.jpg', type: 'file', icon: 'image', url: `${base}/Pictures/Photos/photo_2026-05-01_18-29-05.jpg` },
     ],
     '/Pictures/Wallpapers': [
-      { name: 'eva_smoothed_gruvbox.png', type: 'file', icon: 'image', url: '/Pictures/Wallpapers/eva_smoothed_gruvbox.png' },
-      { name: 'lain_upscayl_4x_digital-art-4x.png', type: 'file', icon: 'image', url: '/Pictures/Wallpapers/lain_upscayl_4x_digital-art-4x.png' },
-      { name: 'mint_upscayl_4x_digital-art-4x.png', type: 'file', icon: 'image', url: '/Pictures/Wallpapers/mint_upscayl_4x_digital-art-4x.png' },
-      { name: 'wallhaven-9o8k9w.jpg', type: 'file', icon: 'image', url: '/Pictures/Wallpapers/wallhaven-9o8k9w.jpg' },
-      { name: 'wallhaven-vpdxqp.png', type: 'file', icon: 'image', url: '/Pictures/Wallpapers/wallhaven-vpdxqp.png' },
-      { name: 'wallhaven-yqg2og.jpg', type: 'file', icon: 'image', url: '/Pictures/Wallpapers/wallhaven-yqg2og.jpg' },
-      { name: 'Ultrakill poster_upscayl_4x_digital-art-4x.png', type: 'file', icon: 'image', url: '/Pictures/Wallpapers/Ultrakill poster_upscayl_4x_digital-art-4x.png' },
-      { name: 'unnamed_upscayl_4x_digital-art-4x.png', type: 'file', icon: 'image', url: '/Pictures/Wallpapers/unnamed_upscayl_4x_digital-art-4x.png' },
+      { name: 'eva_smoothed_gruvbox.png', type: 'file', icon: 'image', url: `${base}/Pictures/Wallpapers/eva_smoothed_gruvbox.png` },
+      { name: 'lain_upscayl_4x_digital-art-4x.png', type: 'file', icon: 'image', url: `${base}/Pictures/Wallpapers/lain_upscayl_4x_digital-art-4x.png` },
+      { name: 'mint_upscayl_4x_digital-art-4x.png', type: 'file', icon: 'image', url: `${base}/Pictures/Wallpapers/mint_upscayl_4x_digital-art-4x.png` },
+      { name: 'wallhaven-9o8k9w.jpg', type: 'file', icon: 'image', url: `${base}/Pictures/Wallpapers/wallhaven-9o8k9w.jpg` },
+      { name: 'wallhaven-vpdxqp.png', type: 'file', icon: 'image', url: `${base}/Pictures/Wallpapers/wallhaven-vpdxqp.png` },
+      { name: 'wallhaven-yqg2og.jpg', type: 'file', icon: 'image', url: `${base}/Pictures/Wallpapers/wallhaven-yqg2og.jpg` },
+      { name: 'Ultrakill poster_upscayl_4x_digital-art-4x.png', type: 'file', icon: 'image', url: `${base}/Pictures/Wallpapers/Ultrakill poster_upscayl_4x_digital-art-4x.png` },
+      { name: 'unnamed_upscayl_4x_digital-art-4x.png', type: 'file', icon: 'image', url: `${base}/Pictures/Wallpapers/unnamed_upscayl_4x_digital-art-4x.png` },
     ],
     '/Videos': [
-      { name: 'untitled.mp4', type: 'file', icon: 'video', url: '/Videos/untitled.mp4' },
+      { name: 'untitled.mp4', type: 'file', icon: 'video', url: `${base}/Videos/untitled.mp4` },
     ],
   });
 
