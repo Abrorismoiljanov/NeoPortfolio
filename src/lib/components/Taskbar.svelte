@@ -137,6 +137,11 @@
       </span>
     </div>
 
+    <button class="clock-btn" onmousedown={(e) => { animate(e.currentTarget, { scale: [1, 0.93, 1.03, 1] }, { duration: 0.3, easing: spring({ stiffness: 500, damping: 20 }) }); toggleCalendar(); }}>
+      <span class="time">{formatTime(now)}</span>
+      <span class="date">{formatDate(now)}</span>
+    </button>
+
     <button class="fs-btn" onmousedown={toggleFullscreen} title={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}>
       {#if isFullscreen}
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -147,11 +152,6 @@
           <path d="M8 3H5a2 2 0 00-2 2v3m18-5h-3m3 0v3m0 12v-3m0 3h-3M3 16v3a2 2 0 002 2h3"/>
         </svg>
       {/if}
-    </button>
-
-    <button class="clock-btn" onmousedown={(e) => { animate(e.currentTarget, { scale: [1, 0.93, 1.03, 1] }, { duration: 0.3, easing: spring({ stiffness: 500, damping: 20 }) }); toggleCalendar(); }}>
-      <span class="time">{formatTime(now)}</span>
-      <span class="date">{formatDate(now)}</span>
     </button>
   </div>
 </div>
